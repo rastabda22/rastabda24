@@ -22,7 +22,7 @@ The example let's you use the following controls:
 - Return : Toggle the details (such as FPS and various sizes)
 
 ## [Try the example, here](https://vimino.gitlab.io/JerboaTTS)
-## [Or try the text-only Prototype, here](https://vimino.gitlab.io/JerboaTTS/prototype.html)
+## [Or the prototype, here](https://vimino.gitlab.io/JerboaTTS/prototype.html)
 
 ### Version
 
