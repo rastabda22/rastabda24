@@ -10,7 +10,7 @@ Since to color the letters (or change their style) it would need a tag enclosing
 Of course, that decision meant I wouldn't touch the prototype any further.
 
 In a few more hours I had a new iteration (named 'JSTTS.html') but I wanted to split its functionality from the HTML as it had a lot of definitions in the head section.  
-To avoid confusion with existing bearers of the TTS name I chose an animal name. In this case, the "hoping desert rodent" Jerboa. A fitting description.  
+To avoid confusion with existing bearers of the TTS name I chose an animal name. In this case, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa). A fitting description.  
 Quickly splitting the project into an index.html and a jerboa.js (the library that handles the behind-the-scenes work) I kept iterating.
 
 In both the example and the prototype you can move the player (depicted by either an **@** or a **☻** character) with the cursor keys.  
