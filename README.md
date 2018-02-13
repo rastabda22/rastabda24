@@ -27,7 +27,7 @@ The example let's you use the following controls:
 ### Version
 
 - JerboaTTS : 4.0
-- Prototype (Terminal) : 6
+- Prototype : 6
 
 ### License
 
