@@ -147,10 +147,6 @@
         // Handle Events
         if (Keyboard) {
           switch (Keyboard) {
-            case 32: // Spacebar
-              player.expression += 1
-              if (player.expression > 6) { player.expression = 0}
-              break
             case 37: // Left
               player.x -= 2
               if (player.x < 2) { player.x = 2 }
@@ -177,7 +173,7 @@
         Border(screen, new Point(0, 0), new Point(Display.width - 1, Display.height - 1))
 
         // Draw the Player
-        Put(screen, new Point(player.x, player.y), '@')
+        Put(screen, new Point(player.x, player.y), '☻')
 
         // Safe characters (some from https://unicode-table.com/en/blocks/miscellaneous-symbols/)
         // '&#9762;' // nuclear
