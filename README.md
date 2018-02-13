@@ -21,7 +21,7 @@ The example let's you use the following controls:
 - Spacebar : Toggle the grid around each cell
 - Return : Toggle the details (such as FPS and various sizes)
 
-## [Try it the latest example, here](https://vimino.gitlab.io/JerboaTTS)
+## [Try the example, here](https://vimino.gitlab.io/JerboaTTS)
 ## [Or try the text-only Prototype, here](https://vimino.gitlab.io/JerboaTTS/prototype.html)
 
 ### Version
