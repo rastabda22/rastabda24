@@ -30,7 +30,7 @@ PS: Enabling the grid allows you to see how much wider some of the characters ar
 
 ### Version
 
-- JerboaTTS : 4.0
+- JerboaTTS : 4.0 after 7 versions of JSTTS
 - Prototype : 6
 
 ### License
