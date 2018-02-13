@@ -9,8 +9,8 @@ This functional prototype has a simple "pre" tag and manipulates through Javascr
 Since to color the letters it needed a tag enclosing each letter I thought, "why not use an HTML5 canvas instead?"  
 Of course, that decision meant I wouldn't touch the prototype any further.
 
-Some time later I created a new iteration (named 'JSTTS.html') but I wanted to split its functionality from the HTML as it had a lot of definitions in the head section.  
-To avoid confusion with existing bearers of the TTS name I also added an animal name. In this case, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa).  
+Some time later I created a new iteration (named 'JSTTS.html') but I needed to split its functionality from the HTML as it had a lot of definitions in the head section.  
+To avoid confusion with existing bearers of the TTS name I also decided to add the name of an animal. In this case, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa).  
 Quickly splitting the project into an index.html and a jerboa.js (the library that handles the behind-the-scenes work) I kept iterating and made something nifty.
 
 You can try the example and the prototype where you can move the Player character (depicted by a **☻** character) with the cursor keys.  
