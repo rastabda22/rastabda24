@@ -2,7 +2,7 @@
 
 A simple Text Terminal Simulator for Javascript.
 
-After watching some Python games made in command lines I was intrigued. How hard would it be to simulate this simple graphical environment using Javascript?  
+After watching some Python games made in terminals (command lines) I was intrigued. How hard would it be to simulate this graphical environment if I used Javascript?  
 I quickly made a prototype. However it doesn't support many symbols as they are either not in the monospace font or had wider widths, thus shifting the Border.  
 This functional prototype has a simple "pre" tag and manipulates through Javascript.
 
