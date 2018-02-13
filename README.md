@@ -13,7 +13,7 @@ In a few more hours I had a new iteration (named 'JSTTS.html') but I wanted to s
 To avoid confusion with existing bearers of the TTS name I added an animal name. In this case, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa).  
 Quickly splitting the project into an index.html and a jerboa.js (the library that handles the behind-the-scenes work) I kept iterating and made something nifty.
 
-In both the example and the prototype you can move the player (depicted by either an **@** or a **☻** character) with the cursor keys.  
+In both the example and the prototype you can move the player (depicted by a **☻** character) with the cursor keys.  
 The example let's you use the following controls:
 - A/Z : Increase/Decrease the Views number of COLS
 - S/X : Increase/Decrease the Views' number of ROWS
