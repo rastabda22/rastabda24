@@ -34,7 +34,7 @@ PS: Enabling the grid allows you to see how much wider some of the characters ar
 ### Version
 
 - JerboaTTS : 4.0
-- JSTTS : 7
+- JSTTS : 8 (it's mostly the same as JerboaTTS, without the Detail toggle and COL/ROW controls)
 - Prototype : 6
 
 ### License
