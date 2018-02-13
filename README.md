@@ -9,9 +9,12 @@ This functional prototype has a simple "pre" tag and manipulates through Javascr
 Since to color the letters it needed a tag enclosing each letter I thought, "why not use an HTML5 canvas instead?"  
 Of course, that decision meant I wouldn't touch the prototype any further.
 
-Some time later I created a new iteration (named 'JSTTS.html') but I needed to split its functionality from the HTML as it had a lot of definitions in the head section.  
-To avoid confusion with existing bearers of the TTS name I also decided to add the name of an animal. In this case, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa).  
-Quickly splitting the project into an index.html and a jerboa.js (the library that handles the behind-the-scenes work) I kept iterating and made something nifty.
+Some time later I created the new 'JSTTS.html'. This includes most of the functionalities that JerboaTTS has.
+However I wanted to split its functionality from the HTML and avoid confusion with existing bearers of the TTS name.
+That's when I decided to add the name of an animal. In this case, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa).  
+After splitting the project into an index.html and a jerboa.js (the library that handles the behind-the-scenes work) I kept iterating and made this nifty library.  
+Not only did I clean it up, I also bundled the code into objects (ex: The Grid stopped being a multi-dimensional array that was manipulated directly).  
+And so, after nearly 24 hours (in total) of development, the library does more than I expected and it's flexible enough to allow users to change sizes in real-time.
 
 In these examples, you can move the Player character (depicted by a **☻** character) with the cursor keys.  
 The main example also has the following controls:
@@ -30,7 +33,8 @@ PS: Enabling the grid allows you to see how much wider some of the characters ar
 
 ### Version
 
-- JerboaTTS : 4.0 after 7 versions of JSTTS
+- JerboaTTS : 4.0
+- JSTTS : 7
 - Prototype : 6
 
 ### License
