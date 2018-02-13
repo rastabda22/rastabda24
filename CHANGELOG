@@ -1,0 +1,111 @@
+Javascript Text Terminal Simulator : JSTTS
+
+The idea is to see how easy it is to simulate a Text Terminal with Javascript.
+For that purpose I decided to start by simply printing everything in a 'pre' tag, thus maintaining the spacing required.
+
+Terminal:
+  Initial test on showing the Terminal in a 'pre' tag.
+  While this works it's required for all characters to have a fixed width (be monospace).
+  Note that it could support Unicode characters and Colors/Styles by using a grid with a 'span' tag for each element but that's beyond this test.
+
+  T1: 2018-02-10 Unsure
+    Build the Display and Drawing Functions
+    Fill the screen with Borders
+
+  T2: 2018-02-10 21:06:56
+    Render a '@' on the Players' position
+    Handle key-down and key-up events
+    Move the Player according to the cursor-keys (this is frame-rate dependent)
+
+  T3: 2018-02-10 22:14:32
+    Limit the input to key-up
+    Have the Player move 1 square vertically or 2 squares horizontally
+
+  T4: 2018-02-10 22:16:35
+    Test Unicode characters and observe their widths
+    Note: As a mono-space font wont support some characters the widths might be larger than desired. This will break Borders when they contain such characters
+
+  T5: 2018-02-10 23:49:55
+    Add a Write function (Unicode characters not supported) and use it to draw a status indicators in the upper-left corner
+    Render the Player as a face whose expression changes by use of the Space-bar
+
+With this complete I saw I'd need to enclose the elements whose color(s) I wanted to change in a tag such as 'span'. Instead, I decided to make a Canvas and draw a Grid of letters, thus removing the need for a specific font (with a mono-spaced still advised) and excessive tags.
+
+JSTTS:
+  Use a Canvas as the View, with a Grid separating the several properties
+  This simulates mono-space fonts and allows for styles per letter (namely color), screen-shots, avoid having a wider character break the structure
+  It will be prepared to have a Grid which can have a different size than the View
+
+  JSTTS0: 2018-02-11 15:02:54
+    Made a dynamic Canvas that fits inside the available area
+
+  JSTTS1: 2018-02-11 18:20:17
+    Migrated the Put created the Render one which renders a Grid in a View
+    Added a grid (strokeRect) to all cells
+    Note that I disabled text as I wanted to make sure the Grid was being rendered correctly
+    Took me long to figure out that it's fillRect(x, y, width, height). The use of 'x + width' and 'y + height' being the cause of odd behavior (the last cells were larger)
+
+  JSTTS2: 2018-02-11 18:31:30
+    Changed the cell size to better something closer to the characters
+    Adjusted the Render function
+    Re-added text to the cells
+    Adjusted the position of the text
+
+  JSTTS3: 2018-02-11 19:13:44
+    Migrated the Line and Border functions
+    Note: I switched to Unicode numbers (\u....) since 'canvas' fillText doesn't support HTML codes
+    Increased the Border size to the entire Grid
+
+  JSTTS4: 2018-02-11 20:32:14
+    Finished copying the last Terminal example
+    Reverted back to using '@' to represent the player
+    Added colors to the status indicators
+    Placed an event on 'space-bar' key-up to toggle the Grid
+
+  JSTTS5: 2018-02-11 20:50:33
+    Added some extra symbols
+    Added an extra 'mp' status bar
+    Changed the players' symbol to a smiling face
+    Note: Seems like the fillText method only supports 4 digit Unicode symbols
+
+  JSTTS6: 2018-02-11 23:54:52 - 2018-02-12 00:29:27
+    Changed the view to 50x25 thus increasing the size of everything (it's scaled automatically to the size of the window)
+    Corrected the offset calculation, thus allowing for the View to accompany the players' movement through the Grid
+    Seems to have some issue if Grid < View. Doesn't crash, the player can just exit the View despite the fact that the Grid is smaller
+
+  JSTTS7: 2018-02-12 10:18:46 - 2018-02-12 12:06:42
+    Corrected the offset so it works if the Grid is larger or smaller than the View
+    It always tries to center it, even if pairs can't center well
+    Added the increase/decrease of the cell (and font) size when pressing '+' or '-'
+    Corrected the View size accordingly, with one bug being when you increase the cell size and the right/bottom border is never reached.
+
+With some work I could easily make this into a library. It has potential for small games (even if they're better off just using regular Canvas).
+Picked a random animal name to use for this engine: Jerboa (speedy "hopping desert rodent" with long ears)
+
+JE (Jerboa Engine):
+  Why make it harder if I could use a simple engine with modest Text Terminal graphics. You can use most symbols from any font so it's even better.
+  The defaults (color, background color, font) can be overwritten if you want full control over it.
+
+  Jerboa 1.0: 2018-02-12 17:06:48
+    Created a jerboa.js and place all the Draw functions in it.
+    Added the Point (x,y) and Rect (x,y,w,h) constructors and updated the functions accordingly
+
+  Jerboa 2.0: 2018-02-12 23:29:42
+    Fixed the issue with pair/odd sizes never reaching the border after resizing (it was entirely due to using .floor(width/cols) and .floor(height/rows)). Changed it to .ceil since I can stand the fact it might have space after the grid
+    Added actions to the A,S,D and Z,X,C to manipulate the views' size
+    Added a debug toggle which is triggered by the 'Enter' key which states the FPS and the several sizes
+    Thanks to this latest feature I can see exactly that FPS dros are mostly due to the View size
+
+  Jerboa 3.0: 2018-02-13 16:12:55
+    Stopped using Point, Rect and Cell as constructors ({ this._ = _ }) and instead basic factories (return {...})
+    Created a Grid constructor with .cols() and .rows() methods. Maintaining its properties Private
+    Updated the validity checks (not undefined or not Jerboa.grid/view)
+    Migrated to the new parameter format (receives an object of Cell properties) for several functions
+      The Cell function creates simple ones (value, color, background)
+
+  Jerboa 4.0: 2018-02-13 18:20:20
+    Added the Title and Version number to jerboa.js
+    Converted the fill function to take a Cell instead of a color
+    Corrected the Fill and Border functions
+    Removed unnecessary Comments and added explicit ones where necessary
+    Modified the Detail text so it will always be according to the Canvas size

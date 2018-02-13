@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Terminal 6</title>
+
+    <!--
+    The MIT License (MIT)
+
+    Copyright (c) 2018 Vítor T. Martins
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    -->
+
+    <style>
+      *{padding:0;margin:0;}
+      body{color:#dddddd;background:#222222;padding:.5em;text-align:center;}
+      .container{display:inline-block;color:#cccccc;font-family:monospace,monospace;text-align:left;font-size:12px;padding:.5em;border:1px solid #444444;}
+      .container pre{white-space:pre;font-weight:bold;background:#333333;}
+    </style>
+
+    <script>
+      const Display = { 'width': 80, 'height': 30 }
+      let Keyboard
+
+      // Fill a Matrix
+      let Fill = function _Fill (target, char) {
+        for (let row = 0; row < Display.height; ++row) {
+          // Create the Row if it doesn't exist
+          if (target[row] === undefined) {
+            target[row] = new Array(Display.width)
+          }
+
+          // Fill the Row with blank Cols
+          let _char = char === undefined ? ' ' : char
+          for (let col = 0; col < Display.width; ++col) {
+            target[row][col] = _char
+          }
+        }
+      }
+
+      // Copy a Matrix to a View
+      let Copy = function _Copy (source, view) {
+        let output = ''
+        for (let row = 0; row < Display.height; ++row) {
+          for (let col = 0; col < Display.width; ++col) {
+            output += source[row][col]
+          }
+          output += '\n' // '<br />'
+        }
+        view.innerHTML = output
+      }
+
+      // Point
+      class Point {
+        constructor (x, y) {
+          this.x = x
+          this.y = y
+        }
+      }
+
+      let Put = function _Put (target, position, char) {
+        let _char = char === undefined ? '?' : char
+        target[position.y][position.x] = _char
+      }
+
+      // Write text. This function doesn't support Unicode!
+      let Write = function _Write (target, position, text) {
+        let _text = text === undefined ? '?' : text
+        for (let x = 0; x < text.length; ++x) {
+          target[position.y][position.x + x] = _text.substring(x, x + 1)
+        }
+      }
+
+      // Draw a Line between two Points
+      let Line = function _Line (target, start, end, char) {
+        let _char = char === undefined ? '?' : char
+
+        if (start.x === end.x) {
+          for (let row = start.y; row < end.y; ++row) {
+            target[row][start.x] = _char
+          }
+        }
+
+        if (start.y === end.y) {
+          for (let col = start.x; col < end.x; ++col) {
+            target[start.y][col] = _char
+          }
+        }
+      }
+
+      let Border = function _Border(target, start, end) {
+        Put(target, new Point(start.x, start.y), '&#9627;')
+        Line(target, new Point(start.x + 1, start.y), new Point(end.x, start.y), '&#9600;')
+        Put(target, new Point(end.x, start.y), '&#9628;')
+        Line(target, new Point(start.x, start.y + 1), new Point(start.x, end.y), '&#9612;')
+        Line(target, new Point(end.x, start.y + 1), new Point(end.x, end.y), '&#9616;')
+        Put(target, new Point(start.x, end.y), '&#9625;')
+        Line(target, new Point(start.x + 1, end.y), new Point(end.x, end.y), '&#9604;')
+        Put(target, new Point(end.x, end.y), '&#9631;')
+      }
+    </script>
+  </head>
+
+  <body>
+    <noscript>
+      ABORT! JAVASCRIPT NOT FOUND.
+    </noscript>
+
+    <script>
+      // Create an empy Screen buffer (Array with the contents)
+      let screen = new Array(Display.height)
+      Fill(screen)
+
+      // Create the HTML objects
+      let container = document.createElement('div')
+      container.className = 'container'
+      let view = document.createElement('pre')
+      container.appendChild(view)
+      document.body.appendChild(container)
+
+      let keyboard = function _keyboard (event) {
+        if (event.type === 'keyup') {
+          Keyboard = event.keyCode
+        }
+
+        event.preventDefault()
+      }
+
+      window.addEventListener('keyup', keyboard, false)
+
+      // Entities
+      let player = {
+        'x': 5,
+        'y': 5,
+        'hp': 358.49,
+        'mp': 25.21,
+        'go': 152.44,
+      }
+
+      // Render loop
+      let render = function _render () {
+        // Handle Events
+        if (Keyboard) {
+          switch (Keyboard) {
+            case 32: // Spacebar
+              player.expression += 1
+              if (player.expression > 6) { player.expression = 0}
+              break
+            case 37: // Left
+              player.x -= 2
+              if (player.x < 2) { player.x = 2 }
+              break
+            case 38: // Up
+              player.y -= 1
+              if (player.y < 1) { player.y = 1 }
+              break
+            case 39: // Right
+              player.x += 2
+              if (player.x > Display.width - 3) { player.x = Display.width - 3 }
+              break
+            case 40: // Down
+              player.y += 1
+              if (player.y > Display.height - 2) { player.y = Display.height - 2 }
+              break
+          }
+
+          Keyboard = undefined
+        }
+
+        // Clear the Screen and draw a border
+        Fill(screen)
+        Border(screen, new Point(0, 0), new Point(Display.width - 1, Display.height - 1))
+
+        // Draw the Player
+        Put(screen, new Point(player.x, player.y), '@')
+
+        // Safe characters (some from https://unicode-table.com/en/blocks/miscellaneous-symbols/)
+        // '&#9762;' // nuclear
+        // '&#9873;' // flag
+        // '&#9830;' // diamond
+        // '&#9829;' // heart
+        // '½'
+        // '¿'
+        // 'Ω'
+        // 'Ø'
+        // '¬'
+        // https://unicode-table.com/en/blocks/block-elements/
+
+        Put(screen, new Point(2, 1), '&#9829;')
+        Write(screen, new Point(4, 1), player.hp.toString())
+
+        Put(screen, new Point(2, 2), '★')
+        Write(screen, new Point(4, 2), player.mp.toString())
+
+        Put(screen, new Point(2, 3), '$')
+        Write(screen, new Point(4, 3), player.go.toString())
+
+        // Copy the Screen and request the next Frame
+        Copy(screen, view)
+        window.requestAnimationFrame(render)
+      }
+
+      // Start the Render loop
+      window.requestAnimationFrame(render)
+    </script>
+  </body>
+</html>
