@@ -88,7 +88,7 @@ JSTTS:
 With some work I could easily make this into a library. It has potential for small games (even if they're better off just using regular Canvas).
 Picked a random animal name to use for this engine: Jerboa (speedy "hopping desert rodent" with long ears)
 
-JE (Jerboa Engine):
+JerboaTTS (JerboaTTS):
   Why make it harder if I could use a simple engine with modest Text Terminal graphics. You can use most symbols from any font so it's even better.
   The defaults (color, background color, font) can be overwritten if you want full control over it.
 
@@ -116,4 +116,4 @@ JE (Jerboa Engine):
     Removed unnecessary Comments and added explicit ones where necessary
     Modified the Detail text so it will always be according to the Canvas size
 
-Added the Project on GitLab and copied and added the latest copy of each file
+Added the Project on GitLab and copied and added the latest copy of both the prototype (Terminal) and the latest version of JerboaTTS.

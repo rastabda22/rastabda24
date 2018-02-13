@@ -2,14 +2,16 @@
 
 A simple Text Terminal Simulator for Javascript.
 
-This was the prototype (aptly named 'Terminal.html' at the time) and uses a 'pre' tag and draws on it with Javascript.  
-Aside from being a functional example, it's quite limited since we can only edit settings through the CSS properties of the objects.  
-This was the last version (6).
+It uses the 'canvas' tag and manages a View (represents the canvas as a Grid) and a Grid (the actual contents of the Terminal).  
+This combination is superior to the prototype which used the 'pre' tag as it allows for full control over it since the Grid is copied to the View/canvas per frame.
 
-Since I decided to go on a different direction (use a 'canvas' tag) from then on I won't be updating it any further.  
-You can move the player (depicted by an **@** character) with the cursor keys.
+You can move the player (depicted by an **☻** character) with the cursor keys.
 
 ## [Try it Here](https://vimino.gitlab.io/JerboaTTS)
+
+### Version
+
+This example uses version 4.0. The latest after the name was changed to JerboaTTS.
 
 ### License
 
