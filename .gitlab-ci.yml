@@ -1,0 +1,13 @@
+cache:
+  paths:
+   - public/
+
+pages:
+  stage: deploy
+  script:
+  
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
