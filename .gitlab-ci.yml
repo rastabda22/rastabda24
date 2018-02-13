@@ -5,7 +5,7 @@ cache:
 pages:
   stage: deploy
   script:
-  
+    - touch index.html
   artifacts:
     paths:
     - public
