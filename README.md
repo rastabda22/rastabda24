@@ -25,7 +25,7 @@ PS: Enabling the grid allows you to see how much wider some of the characters ar
 
 ## Examples
 
-## [Try the example, here](https://vimino.gitlab.io/JerboaTTS)
+## [Try the main one, here](https://vimino.gitlab.io/JerboaTTS)
 ## [Or the prototype, here](https://vimino.gitlab.io/JerboaTTS/prototype.html)
 
 ### Version
