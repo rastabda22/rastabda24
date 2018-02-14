@@ -15,7 +15,7 @@ And so, after developing it for a while I arrived at a library that is flexible 
 
 In these examples, you can move a "Player" character (depicted by the **☻** character) with the cursor keys.  
 They also have the following controls:
-- A/Z : Increase/Decrease the Views number of COLS [JerboaTTS]
+- A/Z : Increase/Decrease the Views' number of COLS [JerboaTTS]
 - S/X : Increase/Decrease the Views' number of ROWS [JerboaTTS]
 - D/C : Increase/Decrease the Views' cell height (size of the font) [JSTTS/JerboaTTS]
 - Spacebar : Toggle the grid around each cell [JSTTS/JerboaTTS]
