@@ -1,0 +1,528 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Javascript Text Terminal Simulator</title>
+
+    <!--
+    The MIT License (MIT)
+
+    Copyright (c) 2018 Vítor T. Martins
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    -->
+
+    <style>
+      *{padding:0;margin:0;}
+      html, body{color:#dddddd;background:#222222;}
+      .container{position:absolute;left:50%;top:50%;width:100%;height:100%;}
+      .canvas{display:block;width:100%;height:100%;background:#444444;}
+    </style>
+
+    <script>
+      // The visible area (Columns x Rows of charWidth x charHeight squares)
+      var View = {
+        'cols': 50, 'rows': 25,
+        'halfCols': 25, 'halfRows': 12,
+        'cellWidth': 12,
+        'cellHeight': 16,
+        'context': undefined,
+        'prevWidth': undefined, 'prevHeight': undefined,
+        'aspectRatio': undefined,
+
+        'color': '#bbbbbb',
+        'font': '16px bold monospace',
+      }
+      var Setting = {
+        'showGrid': false
+      }
+
+      // The Grid (can be different from the View) and a Draw object with methods to edit it
+      var Grid = undefined
+      var Draw = {
+        // Create a Grid
+        'make': function (cols, rows) {
+          grid = new Array(rows)
+          for (var row = 0; row < rows; ++row) {
+            grid[row] = new Array(cols)
+
+            for (var col = 0; col < cols; ++col) {
+              grid[row][col] = {}
+            }
+          }
+
+          return grid
+        }
+      }
+
+      // Fill an Area of a Grid with a Character
+      Draw.fill = function (grid, x = 0, y = 0, width = 0, height = 0, char = ' ') {
+        if (grid === undefined) {
+          console.error('Draw.fill', 'Specified Grid does not exist')
+          return false
+        }
+
+        var _width = width === undefined || width === 0 ? grid[0].length : width
+        var _height = height === undefined || height === 0 ? grid.length : height
+
+        if (y + height > grid.length) {
+          console.warn('Draw.fill', 'Trying to fill beyond the rows available (' + (y + height) + ' > ' + (grid.length) + ')')
+        }
+
+        if (x + width > grid[0].length) {
+          console.warn('Draw.fill', 'Trying to fill beyond the cols available (' + (x + width) + ' > ' + (grid[0].length) + ')')
+        }
+
+        var _char = char === undefined ? ' ' : char
+        _width = x + width > grid[0].length - 1 ? grid[0].length - 1 : _width
+        _height = y + height > grid.length - 1 ? grid.length - 1 : _height
+
+        for (var row = y; row < _height; ++row) {
+          for (var col = x; col < _width; ++col) {
+            grid[row][col].value  = _char
+          }
+        }
+
+        return true
+      }
+
+      // Get Unicode (\u) characters from https://unicode-table.com/en/
+      Draw.put = function (grid, point, char = undefined, front = undefined, back = undefined) {
+        if (grid === undefined) {
+          console.error('Draw.put', 'Specified Grid does not exist')
+          return false
+        }
+
+        var y = point.y
+        if (y < 0) {
+          console.warn('Draw.put(' + x + ', ' + y + ')', 'Position outside Grid (' + grid[0].length + ', ' + grid.length + ')')
+          y = 0
+        } else if (y >= grid.length) {
+          console.warn('Draw.put(' + x + ', ' + y + ')', 'Position outside Grid (' + grid[0].length + ', ' + grid.length + ')')
+          y = grid.length - 1
+        }
+
+        var x = point.x
+        if (x < 0) {
+          console.warn('Draw.put(' + x + ', ' + y + ')', 'Position outside Grid (' + grid[0].length + ', ' + grid.length + ')')
+          x = 0
+        } else if (x >= grid[0].length) {
+          console.warn('Draw.put(' + x + ', ' + y + ')', 'Position outside Grid (' + grid[0].length + ', ' + grid.length + ')')
+          x = grid[0].length - 1
+        }
+
+        var cell = grid[y][x]
+        cell.value = char
+        cell.color = front === undefined ? View.color : front
+        cell.back = back
+
+        return true
+      }
+
+      Draw.write = function (grid, start = { 'x': 0, 'y': 0 }, text = undefined, color = undefined, back = undefined) {
+        let _text = text === undefined ? '?' : text
+        // let _color = color === undefined ? View.color : color
+        for (let x = 0; x < text.length; ++x) {
+          if (start.x + x > grid[0].length) { break }
+          var cell = grid[start.y][start.x + x]
+          cell.value = _text.substring(x, x + 1)
+          cell.color = color
+          cell.back = back
+        }
+      }
+
+      Draw.line = function (grid, start = { 'x': 0, 'y': 0 }, end = { 'x': 0, 'y': 0 }, char = undefined, front = undefined, back = undefined) {
+        if (grid === undefined) {
+          console.error('Draw.line', 'Specified Grid does not exist')
+          return false
+        }
+
+        if (start.x === end.x) {
+          for (let row = start.y; row < end.y; ++row) {
+            var cell = grid[row][start.x]
+            cell.value = char
+            cell.color = front
+            cell.back = back
+          }
+        }
+
+        if (start.y === end.y) {
+          for (let col = start.x; col < end.x; ++col) {
+            var cell = grid[start.y][col]
+            cell.value = char
+            cell.color = front
+            cell.back = back
+          }
+        }
+
+        return grid
+      }
+
+      Draw.border = function (grid, start = { 'x': 0, 'y': 0 }, end = { 'x': grid[0].length, 'y': grid.length }, color) {
+        // Can't use HTML codes for the Canvas, so we'll have to use the actual Unicode numbers
+        var _color = color === undefined ? View.color : color
+
+        Draw.put(Grid, { 'x': start.x, 'y': start.y }, '\u259B', _color)
+        Draw.line(Grid, { 'x': start.x + 1, 'y': start.y } , { 'x': end.x, 'y': start.y }, '\u2580', _color)
+        Draw.put(Grid, { 'x': end.x, 'y': start.y }, '\u259C', _color)
+
+        Draw.line(Grid, { 'x': start.x, 'y': start.y + 1 } , { 'x': start.x, 'y': end.y }, '\u258C', _color)
+        Draw.line(Grid, { 'x': end.x, 'y': start.y + 1 } , { 'x': end.x, 'y': end.y }, '\u2590', _color)
+
+        Draw.put(Grid, { 'x': start.x, 'y': end.y }, '\u2599', _color)
+        Draw.line(Grid, { 'x': start.x + 1, 'y': end.y } , { 'x': end.x, 'y': end.y }, '\u2584', _color)
+        Draw.put(Grid, { 'x': end.x, 'y': end.y }, '\u259F', _color)
+      }
+
+      // Render the contents of a Grid to a View
+      Draw.render = function (grid, offset, view) {
+        // console.log('Render', canvas.width, canvas.height)
+        for (var row = 0; row  < View.rows; ++row) {
+          for (var col = 0; col < View.cols; ++col) {
+            // Make sure we're not trying to access values outside of the Grid
+            // if (row < 0 || row > grid.length - 1 || col < 0 || col > grid[0].length - 1) { continue }
+
+            var _col = col + (grid[0].length < view.cols ? Math.ceil(offset.x / 2) : offset.x)
+            var _row = row + (grid.length < view.rows ? Math.ceil(offset.y / 2) : offset.y)
+            // console.log(_col, _row)
+
+            // Make sure these offsets don't leave us out of the game
+            if (_row < 0 || _row > grid.length - 1 || _col < 0 || _col > grid[0].length - 1) { continue }
+
+            var x = col * View.cellWidth
+            var y = row * View.cellHeight
+            var cell = grid[_row][_col]
+            if (cell === undefined) { continue }
+            // console.log(x, y, 'to', x + View.cellWidth, y + View.cellHeight)
+
+            if (cell.back !== undefined) {
+              view.context.fillStyle = cell.back
+              view.context.fillRect(x, y, View.cellWidth, View.cellHeight)
+            }
+
+            // Show Grid
+            if (Setting.showGrid) {
+              view.context.strokeStyle = '#222222'
+              view.context.strokeRect(x, y, View.cellWidth, View.cellHeight)
+            }
+
+            if (cell.value !== undefined && cell.value.length > 0) {
+              x += Math.floor(View.cellWidth / 2.0)
+              y += Math.floor(View.cellHeight / 1.5)
+
+              view.context.textAlign = 'center'
+              view.context.textBaseline = 'middle'
+              view.context.font = View.font
+              view.context.fillStyle = cell.color === undefined ? View.color : cell.color
+              view.context.fillText(cell.value, x, y)
+            }
+          }
+        }
+      }
+
+      // The Events
+      var LastKey = undefined
+     </script>
+  </head>
+
+  <body>
+    <noscript>
+      ABORT! JAVASCRIPT NOT FOUND.
+    </noscript>
+
+    <script>
+      // Create the Container and the Canvas
+      var container = document.createElement('div')
+      container.className = 'container'
+      var canvas = document.createElement('canvas')
+      canvas.className = 'canvas'
+      container.appendChild(canvas)
+      document.body.appendChild(container)
+
+      // Set the Canvas up (needs a 2d context for standard drawing functions)
+      var context = canvas.getContext('2d')
+      if (context === undefined || context === null) {
+          console.error('Canvas.getContext', 'Unable to create Context')
+      } else {
+          View.context = context
+      }
+
+      // Handle Events
+      var resize = function _resize (event) {
+          // Make sure the size changed
+          if (View.prevWidth === window.innerWidth && View.prevHeight === window.innerHeight) {
+              return
+          }
+
+          // Update the Canvas size and Display aspect ratio depends on it
+          if (View.aspectRatio === undefined) {
+              canvas.width = View.cols * View.cellWidth
+              canvas.height = View.rows * View.cellHeight
+              View.aspectRatio = canvas.width / canvas.height
+          }
+
+          // https://www.html5rocks.com/en/tutorials/casestudies/gopherwoord-studios-resizing-html5-games/
+
+          var newWidth = window.innerWidth
+          var newHeight = window.innerHeight
+          var newAspectRatio = newWidth / newHeight
+
+          // console.log('Resize', newWidth, newHeight)
+
+          if (newAspectRatio > View.aspectRatio) {
+              newWidth = newHeight * View.aspectRatio
+          } else {
+              newHeight = newWidth / View.aspectRatio
+          }
+
+          // Resize the Container
+          container.style.width = newWidth + 'px'
+          container.style.height = newHeight + 'px'
+
+          // Center the Container
+          container.style.marginLeft = (-newWidth/2) + 'px'
+          container.style.marginTop = (-newHeight/2) + 'px'
+
+          // Update the Display size
+          View.prevWidth = window.innerWidth
+          View.prevHeight = window.innerHeight
+      }
+
+      var keyboard = function _keyboard (event) {
+        // console.log('Keyboard', event.type, event.keyCode)
+
+        // if (event.type === 'keydown') {
+        //   LastKey[event.keyCode] = false
+        if (event.type === 'keyup') {
+          LastKey = event.keyCode
+        }
+
+        event.preventDefault()
+      }
+
+      // document.addEventListener('keydown', keyboard, false)
+      window.addEventListener('keyup', keyboard, false)
+      window.addEventListener('resize', resize, false)
+
+      // Create the Grid and its many Cells
+      Grid = Draw.make(60, 20)
+      var player = {
+        'x': 4, // Math.floor(Grid[0].length / 2),
+        'y': 4, // Math.floor(Grid.length / 1.4),
+        'hp': 100,
+        'mp': 20,
+        'go': 0
+      }
+
+      // Render loop
+      var render = function () {
+          // Apply Resize if required. This should only be used if the size changes more often than during resizes
+          //resize()
+
+          // Handle Events
+          if (LastKey !== undefined) {
+            switch (LastKey) {
+              case 32: // Spacebar
+                Setting.showGrid = !Setting.showGrid
+                break
+              case 68: // D, increase Cell size
+              // case 107: case 171: // Plus
+                var newHeight = View.cellHeight + 1
+                if (newHeight > 256) { newHeight = 256 }
+                var newWidth = Math.floor(newHeight * 0.75)
+                View.cellWidth = newWidth
+                View.cellHeight = newHeight
+                View.font = newHeight.toString() + 'px bold monospace'
+
+                View.cols = Math.ceil(canvas.width / newWidth)
+                View.rows = Math.ceil(canvas.height / newHeight)
+                View.halfCols = Math.ceil(View.cols / 2)
+                View.halfRows = Math.ceil(View.rows / 2)
+                // View.aspectRatio = undefined
+                resize()
+
+                console.log('Cell height', newHeight)
+                break
+              case 67: // C, decrease Cell size
+              // case 109: case 173: // Minus
+                var newHeight = View.cellHeight - 1
+                if (newHeight < 6) { newHeight = 6 }
+                var newWidth = Math.floor(newHeight * 0.75)
+                View.cellWidth = newWidth
+                View.cellHeight = newHeight
+                View.font = newHeight.toString() + 'px bold monospace'
+
+                View.cols = Math.ceil(canvas.width / newWidth)
+                View.rows = Math.ceil(canvas.height / newHeight)
+                View.halfCols = Math.ceil(View.cols / 2)
+                View.halfRows = Math.ceil(View.rows / 2)
+                // View.aspectRatio = undefined
+                resize()
+
+                console.log('Cell height', newHeight)
+                break
+              case 37: // Left
+                player.x -= 1
+                if (player.x < 1 ) { player.x = 1 }
+                break
+              case 38: // Up
+                player.y -= 1
+                if (player.y < 1) { player.y = 1 }
+                break
+              case 39: // Right
+                player.x += 1
+                if (player.x > Grid[0].length - 2) { player.x = Grid[0].length - 2 }
+                break
+              case 40: // Down
+                player.y += 1
+                if (player.y > Grid.length - 2) { player.y = Grid.length - 2 }
+                break
+            }
+            // console.log(player)
+
+            LastKey = undefined
+          }
+
+          // Clear the Canvas and the Grid. This is unnecessary if they're not changed
+          context.clearRect(0, 0, canvas.width, canvas.height)
+          Draw.fill(Grid)
+
+          var w = Grid[0].length - 1
+          var h = Grid.length - 1
+
+          // // for (var x = 0; x <= w; ++x) {
+          // //   Draw.put(Grid, x, 0, x.toString(), 'black', 'cyan')
+          // //   Draw.put(Grid, x, h, x.toString(), 'black', 'cyan')
+          // // }
+          // Draw.line(Grid, { 'x': 1, 'y': 0 } , { 'x': w, 'y': 0 }, '=', 'black', 'cyan')
+          // Draw.line(Grid, { 'x': 1, 'y': h } , { 'x': w, 'y': h }, '=', 'black', 'cyan')
+          //
+          // // for (var y = 0; y <= h; ++y) {
+          // //   Draw.put(Grid, 0, y, y.toString(), 'black', 'orange')
+          // //   Draw.put(Grid, w, y, y.toString(), 'black', 'orange')
+          // // }
+          // Draw.line(Grid, { 'x': 0, 'y': 1 } , { 'x': 0, 'y': h }, '=', 'black', 'orange')
+          // Draw.line(Grid, { 'x': w, 'y': 1 } , { 'x': w, 'y': h }, '=', 'black', 'orange')
+          Draw.border(Grid, { 'x': 0, 'y': 0 } , { 'x': w, 'y': h })
+
+          // Player
+          Draw.put(Grid, { 'x': player.x, 'y': player.y }, '\u263B') // '@')
+
+          // https://unicode-table.com/en/blocks/miscellaneous-symbols/
+          // https://unicode-table.com/en/blocks/dingbats/
+          // https://unicode-table.com/en/sets/stars-symbols/
+
+          // Random Symbols
+          Draw.put(Grid, { 'x': 6, 'y': 6 }, '\u26CF')
+          Draw.put(Grid, { 'x': 8, 'y': 6 }, '\u262F')
+          Draw.put(Grid, { 'x': 10, 'y': 6 }, '\u264C')
+          Draw.put(Grid, { 'x': 12, 'y': 6 }, '\u26F1')
+          Draw.put(Grid, { 'x': 14, 'y': 6 }, '\u26F3')
+          Draw.put(Grid, { 'x': 16, 'y': 6 }, '\u26F4')
+          Draw.put(Grid, { 'x': 18, 'y': 6 }, '\u26FA')
+          Draw.put(Grid, { 'x': 20, 'y': 6 }, '\u2619')
+          Draw.put(Grid, { 'x': 22, 'y': 6 }, '\u2618')
+          Draw.put(Grid, { 'x': 24, 'y': 6 }, '\u26C4')
+
+          Draw.put(Grid, { 'x': 6, 'y': 8 }, '\u2689')
+          Draw.put(Grid, { 'x': 8, 'y': 8 }, '\u2697')
+          Draw.put(Grid, { 'x': 10, 'y': 8 }, '\u26C7')
+          Draw.put(Grid, { 'x': 12, 'y': 8 }, '\u26F8')
+          Draw.put(Grid, { 'x': 14, 'y': 8 }, '\u26F9')
+          Draw.put(Grid, { 'x': 16, 'y': 8 }, '\u26BD')
+          Draw.put(Grid, { 'x': 18, 'y': 8 }, '\u26BE')
+          Draw.put(Grid, { 'x': 20, 'y': 8 }, '\u26C5')
+          Draw.put(Grid, { 'x': 22, 'y': 8 }, '\u26C6')
+          Draw.put(Grid, { 'x': 24, 'y': 8 }, '\u2638')
+
+          Draw.put(Grid, { 'x': 6, 'y': 10 }, '\u26BF')
+          Draw.put(Grid, { 'x': 8, 'y': 10 }, '\u26D3')
+          Draw.put(Grid, { 'x': 10, 'y': 10 }, '\u26EC')
+          Draw.put(Grid, { 'x': 12, 'y': 10 }, '\u26E4')
+          Draw.put(Grid, { 'x': 14, 'y': 10 }, '\u26F6')
+          Draw.put(Grid, { 'x': 16, 'y': 10 }, '\u26FD')
+          Draw.put(Grid, { 'x': 18, 'y': 10 }, '\u26DF')
+          Draw.put(Grid, { 'x': 20, 'y': 10 }, '\u261B')
+          Draw.put(Grid, { 'x': 22, 'y': 10 }, '\u261A')
+          Draw.put(Grid, { 'x': 24, 'y': 10 }, '\u2602')
+
+          Draw.put(Grid, { 'x': 6, 'y': 12 }, '\u269D')
+          Draw.put(Grid, { 'x': 8, 'y': 12 }, '\u2698')
+          Draw.put(Grid, { 'x': 10, 'y': 12 }, '\u2699')
+          Draw.put(Grid, { 'x': 12, 'y': 12 }, '\u269B')
+          Draw.put(Grid, { 'x': 14, 'y': 12 }, '\u2693')
+          Draw.put(Grid, { 'x': 16, 'y': 12 }, '\u2694')
+          Draw.put(Grid, { 'x': 18, 'y': 12 }, '\u265E')
+          Draw.put(Grid, { 'x': 20, 'y': 12 }, '\u260E')
+          Draw.put(Grid, { 'x': 22, 'y': 12 }, '\u2726') // 20BF')
+          Draw.put(Grid, { 'x': 24, 'y': 12 }, '\u2600')
+
+          Draw.put(Grid, { 'x': 6, 'y': 14 }, '\u2764')
+          Draw.put(Grid, { 'x': 8, 'y': 14 }, '\u2665')
+          Draw.put(Grid, { 'x': 10, 'y': 14 }, '\u2714')
+          Draw.put(Grid, { 'x': 12, 'y': 14 }, '\u2708')
+          Draw.put(Grid, { 'x': 14, 'y': 14 }, '\u270E')
+          Draw.put(Grid, { 'x': 16, 'y': 14 }, '\u2712')
+          Draw.put(Grid, { 'x': 18, 'y': 14 }, '\u273F')
+          Draw.put(Grid, { 'x': 20, 'y': 14 }, '\u2591')
+          Draw.put(Grid, { 'x': 22, 'y': 14 }, '\u2593')
+          Draw.put(Grid, { 'x': 24, 'y': 14 }, '\u2592')
+
+          Draw.put(Grid, { 'x': 6, 'y': 16 }, '\u2766')
+          Draw.put(Grid, { 'x': 8, 'y': 16 }, '\u279C')
+          Draw.put(Grid, { 'x': 10, 'y': 16 }, '\u27A4')
+          Draw.put(Grid, { 'x': 12, 'y': 16 }, '\u27BD')
+          Draw.put(Grid, { 'x': 14, 'y': 16 }, '\u266B')
+          Draw.put(Grid, { 'x': 16, 'y': 16 }, '\u274C')
+          Draw.put(Grid, { 'x': 18, 'y': 16 }, '\u273E')
+          Draw.put(Grid, { 'x': 20, 'y': 16 }, '\u272E')
+          Draw.put(Grid, { 'x': 22, 'y': 16 }, '\u2771')
+          Draw.put(Grid, { 'x': 24, 'y': 16 }, '\u2775')
+
+          Draw.put(Grid, { 'x': 6, 'y': 16 }, '\u275D')
+          Draw.put(Grid, { 'x': 8, 'y': 16 }, '\u2753')
+          Draw.put(Grid, { 'x': 10, 'y': 16 }, '\u2724')
+          Draw.put(Grid, { 'x': 12, 'y': 16 }, '\u2640')
+          Draw.put(Grid, { 'x': 14, 'y': 16 }, '\u263F')
+          Draw.put(Grid, { 'x': 16, 'y': 16 }, '\u260A')
+          Draw.put(Grid, { 'x': 18, 'y': 16 }, '\u2692')
+          Draw.put(Grid, { 'x': 20, 'y': 16 }, '\u2691')
+          Draw.put(Grid, { 'x': 22, 'y': 16 }, '\u2668')
+          Draw.put(Grid, { 'x': 24, 'y': 16 }, '\u26D4')
+
+          // Status indicators
+          Draw.put(Grid, { 'x': 1, 'y': 1 }, '\u2665', 'orange')
+          Draw.write(Grid, { 'x': 3, 'y': 1 }, player.hp.toString(), 'orange')
+          Draw.put(Grid, { 'x': 1, 'y': 2 }, '★', 'cyan')
+          Draw.write(Grid, { 'x': 3, 'y': 2 }, player.mp.toString(), 'cyan')
+          Draw.put(Grid, { 'x': 1, 'y': 3 }, '$', 'lightgreen')
+          Draw.write(Grid, { 'x': 3, 'y': 3 }, player.go.toString(), 'lightgreen')
+
+          // console.log(Grid)
+
+          // Calculate the Offset if the Grid is bigger than the View
+          var offset = { 'x': 0, 'y': 0 }
+          offset.x = player.x - View.halfCols
+          if (offset.x < 0) { offset.x = 0 }
+          if (offset.x + View.cols > Grid[0].length) { offset.x = Grid[0].length - View.cols }
+          offset.y = player.y - View.halfRows
+          if (offset.y < 0) { offset.y = 0 }
+          if (offset.y + View.rows > Grid.length) { offset.y = Grid.length - View.rows }
+          // console.log(offset) // , offset.x + View.cols, Grid[0].length)
+
+          Draw.render(Grid, offset, View)
+
+          // Call next Render call
+          window.requestAnimationFrame(render)
+      }
+
+      // Set the Display and View up then start the Render loop
+      resize()
+      window.requestAnimationFrame(render)
+    </script>
+  </body>
+</html>
