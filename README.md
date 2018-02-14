@@ -23,7 +23,7 @@ They also have the following controls:
 
 PS: Enabling the borders allows you to see how wide some of those characters are. Yikes!
 
-## Examples (Runs in your Browser)
+## Examples (which run in your Browser)
 
 ## [JerboaTTS](https://vimino.gitlab.io/JerboaTTS)
 ## [JSTTS](https://vimino.gitlab.io/JerboaTTS/jstts.html)
