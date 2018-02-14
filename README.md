@@ -23,10 +23,11 @@ The main example also has the following controls:
 
 PS: Enabling the borders allows you to see how wide some of those characters are. Yikes!
 
-## Examples
+## Examples (Runs in your Browser)
 
-## [Try the latest one, here](https://vimino.gitlab.io/JerboaTTS)
-## [Or the prototype, here](https://vimino.gitlab.io/JerboaTTS/prototype.html)
+## [Latest JerboaTTS](https://vimino.gitlab.io/JerboaTTS)
+## [JSTTS](https://vimino.gitlab.io/JerboaTTS/jstts.html)
+## [Prototype](https://vimino.gitlab.io/JerboaTTS/prototype.html)
 
 ### Version
 
