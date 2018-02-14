@@ -5,8 +5,8 @@ A simple Text Terminal Simulator for Javascript.
 After watching some Python games made in terminals (command lines) I was intrigued on how hard it would be to simulate them in Javascript.  
 I quickly made a prototype, a simple "pre" tag that is manipulated through Javascript, but I also wanted to color the letters and handle wider characters.
 
-That's when I moved to using a "canvas" tag in  'JSTTS.html', in which I developed most of the visuals that the current JerboaTTS has.
-Since the HTML was getting crowded I decided to split it, taking the chance to also change its name to avoid confusion with other libraries.
+That's when I moved to using a "canvas" tag in  'JSTTS.html', in which I developed most of the visuals that the current JerboaTTS has.  
+Since the HTML was getting crowded I decided to split it, taking the chance to also change its name to avoid confusion with other libraries.  
 I chose the name of an animal. Namely, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa).  
 
 After splitting the project into a jerboa.js and an index.html I started organizing the code.  
