@@ -14,12 +14,12 @@ Not only did I clean it up but I also bundled parts of the code into objects (no
 And so, after developing it for a while I arrived at a library that is flexible enough to allow users to play with and understand.
 
 In these examples, you can move a "Player" character (depicted by the **☻** character) with the cursor keys.  
-The main example also has the following controls:
-- A/Z : Increase/Decrease the Views number of COLS
-- S/X : Increase/Decrease the Views' number of ROWS
-- D/C : Increase/Decrease the Views' cell height (size of the font)
-- Spacebar : Toggle the grid around each cell
-- Return : Toggle the details (such as FPS and various sizes)
+They also have the following controls:
+- A/Z : Increase/Decrease the Views number of COLS [JerboaTTS]
+- S/X : Increase/Decrease the Views' number of ROWS [JerboaTTS]
+- D/C : Increase/Decrease the Views' cell height (size of the font) [JSTTS/JerboaTTS]
+- Spacebar : Toggle the grid around each cell [JSTTS/JerboaTTS]
+- Return : Toggle the details (such as FPS and various sizes) [JerboaTTS]
 
 PS: Enabling the borders allows you to see how wide some of those characters are. Yikes!
 
