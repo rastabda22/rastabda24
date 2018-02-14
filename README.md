@@ -25,7 +25,7 @@ PS: Enabling the borders allows you to see how wide some of those characters are
 
 ## Examples (Runs in your Browser)
 
-## [Latest JerboaTTS](https://vimino.gitlab.io/JerboaTTS)
+## [JerboaTTS](https://vimino.gitlab.io/JerboaTTS)
 ## [JSTTS](https://vimino.gitlab.io/JerboaTTS/jstts.html)
 ## [Prototype](https://vimino.gitlab.io/JerboaTTS/prototype.html)
 
