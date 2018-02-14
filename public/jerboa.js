@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 4.0
+// Version 5
 //
 // The MIT License (MIT)
 //
@@ -31,7 +31,7 @@ var Rect = function Rect (x = 0, y = 0, w = 0, h = 0) {
 
 // Cell CSS Parameters, same as (value = '_', fill = '#_', background = '#_', font = '_px bold monospace')
 var Cell = function Cell (value = undefined, fill = undefined, background = undefined, font = undefined) {
-    return {
+  return {
     'value': value,
     'fill': fill,
     'background': background,
@@ -50,16 +50,16 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
   var _cells = undefined
 
   // Resize the Grid, updating its cells, cols and rows
-  this.resize = function resize (cols, rows) {
-    _cells = new Array(rows)
-    for (var row = 0; row < rows; ++row) {
-      _cells[row] = new Array(cols)
-      for (var col = 0; col < cols; ++col) {
+  this.resize = function resize (cols = undefined, rows = undefined) {
+    _cols = cols === undefined ? _cols : cols
+    _rows = rows === undefined ? _rows : rows
+    _cells = new Array(_rows)
+    for (var row = 0; row < _rows; ++row) {
+      _cells[row] = new Array(_cols)
+      for (var col = 0; col < _cols; ++col) {
         _cells[row][col] = {}
       }
     }
-    _cols = cols
-    _rows = rows
   }
 
   // Get the private number of columns
@@ -74,8 +74,8 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
 
   // Set the value of a Cell
   this.set = function set (col, row, props) {
-    if (row < 0 || row > _rows) { return }
-    if (col < 0 || col > _cols) { return }
+    if (row < 0 || row >= _rows) { return }
+    if (col < 0 || col >= _cols) { return }
     _cells[row][col] = props
   }
 
@@ -86,8 +86,102 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
     return _cells[row][col]
   }
 
-  // Initialize the Grid
-  this.resize(cols, rows)
+  // Initialize the Grid (if the first argument is a View or a Grid, copy its size)
+  if (cols instanceof Jerboa.view || cols instanceof Jerboa.grid) {
+    this.resize(cols.cols(), cols.rows())
+  } else {
+    this.resize(cols, rows)
+  }
+}
+
+// JerboaView, represents the canvas own COLSxROWS
+Jerboa.view = function JerboaView (cols, rows, cellHeight, context = undefined) {
+  // Private properties of the View
+  var _rows = undefined
+  var _cols = undefined
+  var _cellSize = { 'height': undefined, 'ratio': 0.75 }
+
+  var _defaultCell = {} // Default Cell style
+  var _border = { 'color': 'black', 'width': 1 } // Cell Border style used when ShowGrid is true
+
+  // Canvas variables, these are updated on any View resize
+  this.width = undefined
+  this.height = undefined
+  this.ratio = undefined
+  this.context = undefined // Canvas Context (note: this has no width/height)
+  this.changed = false
+
+  // Get the number of columns
+  this.cols = function cols () {
+    return _cols
+  }
+
+  // Get the number of rows
+  this.rows = function rows () {
+    return _rows
+  }
+
+  // Get the cell sizes
+  this.cell = function cell () { // height, width = undefined) {
+    // this.changed = (_cellHeight !== height) || (width !== undefined && _cellWidth !== width)
+
+    // _cellHeight = height === undefined ? _cellHeight : height
+    // _cellWidth = _cellHeight
+    // if (width === undefined) {
+    //   _cellWidth = width
+    // } else {
+    //   _cellWidth = _cellHeight
+    //   //   _cellWidth = isNaN(this.ratio) ? _cellHeight : Math.floor(_cellHeight / this.ratio)
+    // }
+    // console.log('cell', _cellWidth, _cellHeight)
+    return _cellSize
+  }
+
+  // Set/Get the default Cell style
+  this.default = function defaultCell (props = {}) {
+    for (var prop in props) {
+      _defaultCell[prop] = props[prop]
+    }
+    return _defaultCell
+  }
+
+  // Set/Get the style of the Border (Stroke Color and Line Width)
+  this.border = function border (color = undefined, width = undefined) {
+    _border.color = color === undefined ? _border.color : color
+    _border.width = width === undefined ? _border.width : width
+    return _border
+  }
+
+  // Resize tge View
+  this.resize = function resize (cols = undefined, rows = undefined, cellSize = {}) {
+    _cols = cols === undefined ? _cols : cols
+    _rows = rows === undefined ? _rows : rows
+
+    if (cellSize !== undefined) {
+      if (cellSize['height']) {
+        _cellSize.height = cellSize.height
+        // _defaultCell.font = cellSize.height.toString() + 'px bold monospace'
+      }
+      if (cellSize['ratio']) { _cellSize.ratio = cellSize.ratio }
+      if (cellSize['width']) {
+        _cellSize.width = cellSize.width
+      } else {
+        _cellSize.width = Math.floor(_cellSize.height * _cellSize.ratio)
+      }
+    }
+
+    // Update the Canvas values
+    this.width = _cols * _cellSize.width
+    this.height = _rows * _cellSize.height
+    this.ratio = this.width / this.height
+
+    // Request the recalculation as the Canvas size needs to change
+    this.changed = true
+  }
+
+  // Initialize the View
+  this.resize(cols, rows, cellHeight)
+  if (context !== undefined) { this.context = context }
 }
 
 // Fill an Area of a JerboaGrid with a Character
@@ -277,75 +371,81 @@ Jerboa.border = function (grid, rect = Rect(), fill = undefined, background = un
 }
 
 // Render the contents of a grid to a View
-Jerboa.render = function (grid, view, offset = Point(0, 0), showGrid = false) {
+Jerboa.render = function (grid, view, center = Point(0, 0), showGrid = false) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.render', 'Grid ' + (grid === undefined ? 'is not defined' : 'is not a JesboaGrid'))
     return
   }
 
-  var halfCW = Math.floor(View.cellWidth / 2)
-  var halfCH = Math.floor(View.cellHeight / 2)
+  if (view === undefined || !(view instanceof Jerboa.view)) {
+    console.error('Jerboa.render', 'View ' + (view === undefined ? 'is not defined' : 'is not a JesboaView'))
+    return
+  }
+
+  // Get tbe values common to all cells to avoid repeatedly looking for them
+  var gricol = grid.cols()
+  var grirow = grid.rows()
+  var viecol = view.cols()
+  var vierow = view.rows()
+  var cesiz = view.cell()
+  var halfCW = Math.floor(cesiz.width / 2)
+  var halfCH = Math.floor(cesiz.height / 2)
+
+  var viedef = view.default()
+  var viebor = view.border()
+
+  // Calculate the offset based on the Center point
+  var offset = Point(0, 0) // center
+  offset.x = center.x - Math.floor(viecol / 2)
+  if (offset.x < 0) { offset.x = 0 }
+  if (offset.x + viecol > gricol) { offset.x = gricol - viecol }
+  offset.y = center.y - Math.floor(vierow / 2)
+  if (offset.y < 0) { offset.y = 0 }
+  if (offset.y + vierow > grirow) { offset.y = grirow - vierow }
 
   // Global settings
   view.context.textAlign = 'center'
   view.context.textBaseline = 'middle'
 
   // Render every Cell within the View
-  for (var row = 0; row  < View.rows; ++row) {
-    for (var col = 0; col < View.cols; ++col) {
+  for (var row = 0; row  < vierow; ++row) {
+    for (var col = 0; col < viecol; ++col) {
       // Center the Grid if it«s smaller than the View
-      var _col = col + (grid.cols() < view.cols ? Math.ceil(offset.x / 2) : offset.x)
-      var _row = row + (grid.rows() < view.rows ? Math.ceil(offset.y / 2) : offset.y)
+      var _col = col + (gricol < viecol ? Math.ceil(offset.x / 2) : offset.x)
+      var _row = row + (grirow < vierow ? Math.ceil(offset.y / 2) : offset.y)
 
-      // Ignore values outside the grid
-      if (_row < 0 || _row > grid.rows() - 1 || _col < 0 || _col > grid.cols() - 1) { continue }
+      // Ignore values outside the Grid
+      if (_row < 0 || _row > grirow - 1 || _col < 0 || _col > gricol - 1) { continue }
 
       context.save()
 
       // Calculate the Position and get the Cell
-      var x = col * View.cellWidth
-      var y = row * View.cellHeight
+      var x = col * cesiz.width
+      var y = row * cesiz.height
       var cell = grid.get(_col, _row)
 
       // Paint the Cell if it has a Background color
-      if (cell.background !== undefined || View.default.background !== undefined) {
-        view.context.fillStyle = cell.background === undefined ? View.default.background : cell.background
-        view.context.fillRect(x, y, View.cellWidth, View.cellHeight)
+      if (cell.background !== undefined || viedef.background !== undefined) {
+        view.context.fillStyle = cell.background === undefined ? viedef.background : cell.background
+        view.context.fillRect(x, y, cesiz.width, cesiz.height)
       }
 
-      // Show a Grid if it was requested
+      // Show a Cell Border if requested
       if (showGrid) {
-        view.context.lineWidth = 2
-        view.context.strokeStyle = View.grid.stroke
-        view.context.strokeRect(x, y, View.cellWidth, View.cellHeight)
+        view.context.lineWidth = viebor.width
+        view.context.strokeStyle = viebor.color
+        view.context.strokeRect(x, y, cesiz.width, cesiz.height)
       }
 
       // Draw the Cells' text value if it has one, in the font/color specified
-      if (cell.value !== undefined && cell.value.length > 0) {
-        view.context.font = cell.font === undefined ? View.default.font : cell.font
-        view.context.fillStyle = cell.fill === undefined ? View.default.fill : cell.fill
-        view.context.fillText(cell.value, x + halfCW, y + halfCH)
+      var value = cell.value === undefined ? viedef.value : cell.value
+      if (value !== undefined) {
+        view.context.fillStyle = cell.fill === undefined ? viedef.fill : cell.fill
+        view.context.font = cesiz.height.toString() + 'px ' + (cell.font === undefined ? viedef.font : cell.font)
+        view.context.fillText(value, x + halfCW, y + halfCH)
       }
 
       context.restore()
     }
   }
-}
-
-// Calculate the Offset based on a Grid, a View and a center Point
-Jerboa.offset = function _offsetFromPoint (grid, view, center) {
-  var offset = { 'x': 0, 'y': 0 }
-
-  if (grid === undefined || !(grid instanceof Jerboa.grid)) {
-    console.warn('Jerboa.offsetFromPoint', 'Grid ' + (grid === undefined ? 'is not defined' : 'is not a JesboaGrid'))
-    return offset
-  }
-
-  offset.x = center.x - Math.floor(view.cols / 2)
-  if (offset.x < 0) { offset.x = 0 }
-  if (offset.x + view.cols > grid.cols()) { offset.x = grid.cols() - view.cols }
-  offset.y = center.y - Math.floor(view.rows / 2)
-  if (offset.y < 0) { offset.y = 0 }
-  if (offset.y + view.rows > grid.rows()) { offset.y = grid.rows() - view.rows }
-  return offset
 }

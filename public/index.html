@@ -27,33 +27,16 @@
       .canvas{display:block;width:100%;height:100%;background:#444444;}
     </style>
 
-    <script src="jerboa.js"></script>
+    <script src="jerboa5.js"></script>
 
     <script>
-      // The visible area (matrix of COLSxROWS of CharWidthxCharHeight squares)
-      var View = {
-        'cols': 30, 'rows': 15,
-        // 'halfCols': 25, 'halfRows': 12,
-        'cellWidth': 18,
-        'cellHeight': 24,
-        'context': undefined,
-        'prevWidth': undefined, 'prevHeight': undefined,
-        'aspectRatio': undefined,
-
-        'default': {
-          'fill': '#bbbbbb',
-          'background': undefined,
-          'stroke': undefined,
-          'font': '24px bold monospace',
-        },
-
-        'grid': {
-          'stroke': '#222222',
-        },
-      }
+      // The visible area represented as a COLSxROWS matrix
+      // Specifying the Text size can be done by either an object with 'height' and 'ratio' or 'width'
+      var View = new Jerboa.view(30, 15, { 'height': 24, 'ratio': 0.75 })
 
       var Setting = {
-        'showGrid': false,
+        // Toggles
+        'showBorders': false,
         'showDetails': false,
 
         // Variables for counting FPS
@@ -63,9 +46,10 @@
         'fps': 0,
       }
 
-      // The Events
+      // Events
       var LastKey = undefined
 
+      // Auxiliary function to draw the Detail text
       var renderText = function (x, y, text) {
         context.strokeText(text, x, y)
         context.fillText(text, x, y)
@@ -90,37 +74,39 @@
       // Set the Canvas up (needs a 2d context for standard drawing functions)
       var context = canvas.getContext('2d')
       if (context === undefined || context === null) {
-          console.error('Canvas.getContext', 'Unable to create Context')
-      } else {
-          View.context = context
+          console.error('Canvas.getContext', 'Unable to create a 2D Canvas Context')
       }
+
+      // Assign the Context to the View and the default View values
+      View.context = context
+      View.default({  'fill': '#bbbbbb', 'font': 'bold monospace' }) // , 'background': 'black' })
+      View.border('#222222', 2)
 
       // Handle Events
       var resize = function resize (event) {
         // Make sure the size changed
-        if (View.prevWidth === window.innerWidth && View.prevHeight === window.innerHeight) {
+        if (View.width === window.innerWidth && View.height === window.innerHeight) {
             return
         }
 
-        // Update the Canvas size and Display aspect ratio depends on it
-        if (View.aspectRatio === undefined) {
-            canvas.width = View.cols * View.cellWidth
-            canvas.height = View.rows * View.cellHeight
-            View.aspectRatio = canvas.width / canvas.height
+        // If the Canvas needs to change we update due to the View
+        if (View.changed) {
+          canvas.width = View.width
+          canvas.height = View.height
+          View.changed = false
         }
 
         // https://www.html5rocks.com/en/tutorials/casestudies/gopherwoord-studios-resizing-html5-games/
 
+        // Calculate the position based on the space available
         var newWidth = window.innerWidth
         var newHeight = window.innerHeight
         var newAspectRatio = newWidth / newHeight
 
-        // console.log('Resize', newWidth, newHeight)
-
-        if (newAspectRatio > View.aspectRatio) {
-            newWidth = newHeight * View.aspectRatio
+        if (newAspectRatio > View.ratio) {
+            newWidth = newHeight * View.ratio
         } else {
-            newHeight = newWidth / View.aspectRatio
+            newHeight = newWidth / View.ratio
         }
 
         // Resize the Container
@@ -132,8 +118,8 @@
         container.style.marginTop = (-newHeight/2) + 'px'
 
         // Update the Display size
-        View.prevWidth = newWidth
-        View.prevHeight = newHeight
+        View.width = newWidth
+        View.height = newHeight
       }
 
       var keyboard = function _keyboard (event) {
@@ -151,11 +137,13 @@
       window.addEventListener('orientationChange', resize, false)
 
       // Create the Grid and its many Cells
-      Map = new Jerboa.grid(40, 20)
+      var Map = new Jerboa.grid(40, 20)
       var player = Point(4, 4)
       player.hp = 358.49
       player.mp = 25.21
       player.go = 152.44
+
+      var UI = new Jerboa.grid(View)
 
       // Render loop
       var render = function () {
@@ -166,50 +154,87 @@
                 Setting.showDetails = !Setting.showDetails
                 break
               case 32: // Spacebar, toggle Grid
-                Setting.showGrid = !Setting.showGrid
+                Setting.showBorders = !Setting.showBorders
                 break
               case 65: // A, increase View COLS
-                View.cols += 1
-                if (View.cols > 256) { View.cols = 256 }
-                View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+                var vc = View.cols()
+                vc += 1
+                if (vc > 256) { vc = 256 }
+                View.resize(vc)
+                UI.resize(vc)
+
                 resize()
                 break
               case 90: // Z, decrease View COLS
-                View.cols -= 1
-                if (View.cols < 1) { View.cols = 1 }
-                View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+                // View.cols -= 1
+                // if (View.cols < 1) { View.cols = 1 }
+                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+
+                var vc = View.cols()
+                vc -= 1
+                if (vc < 1) { vc = 1 }
+                View.resize(vc)
+                UI.resize(vc)
+
                 resize()
                 break
               case 83: // S, increase View ROWS
-                View.rows += 1
-                if (View.rows > 256) { View.rows = 256 }
-                View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+                // View.rows += 1
+                // if (View.rows > 256) { View.rows = 256 }
+                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+
+                var vr = View.rows()
+                vr += 1
+                if (vr > 256) { vr = 256 }
+                View.resize(undefined, vr)
+                UI.resize(undefined ,vr)
+
                 resize()
                 break
               case 88: // X, decrease View ROWS
-                View.rows -= 1
-                if (View.rows < 1) { View.rows = 1 }
-                View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+                // View.rows -= 1
+                // if (View.rows < 1) { View.rows = 1 }
+                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+
+                var vr = View.rows()
+                vr -= 1
+                if (vr < 1) { vr = 1 }
+                View.resize(undefined, vr)
+                UI.resize(undefined ,vr)
+
                 resize()
                 break
               case 68: // D, increase Cell size
-                var newHeight = View.cellHeight + 1
-                if (newHeight > 256) { newHeight = 256 }
-                var newWidth = Math.floor(newHeight * 0.75)
-                View.cellWidth = newWidth
-                View.cellHeight = newHeight
-                View.default.font = newHeight.toString() + 'px bold monospace'
-                View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+                // var newHeight = View.cellHeight + 1
+                // if (newHeight > 256) { newHeight = 256 }
+                // var newWidth = Math.floor(newHeight * 0.75)
+                // View.cellWidth = newWidth
+                // View.cellHeight = newHeight
+                // View.default.font = newHeight.toString() + 'px bold monospace'
+                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+
+                var cs = View.cell()
+                cs.height += 1
+                if (cs.height > 256) { cs.height = 256 }
+                View.resize(undefined, undefined, cs.height)
+
                 resize()
                 break
               case 67: // C, decrease Cell size
-                var newHeight = View.cellHeight - 1
-                if (newHeight < 6) { newHeight = 6 }
-                var newWidth = Math.floor(newHeight * 0.75)
-                View.cellWidth = newWidth
-                View.cellHeight = newHeight
-                View.default.font = newHeight.toString() + 'px bold monospace'
-                View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+                // var newHeight = View.cellHeight - 1
+                // if (newHeight < 6) { newHeight = 6 }
+                // var newWidth = Math.floor(newHeight * 0.75)
+                // View.cellWidth = newWidth
+                // View.cellHeight = newHeight
+                // View.default.font = newHeight.toString() + 'px bold monospace'
+                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
+
+                var cs = View.cell()
+                cs.height -= 1
+                if (cs.height < 8) { cs.height = 8 }
+                View.resize(undefined, undefined, cs.height)
+                // View.cell(cs.height)
+
                 resize()
                 break
               case 37: // Left, move Player left
@@ -233,7 +258,7 @@
             LastKey = undefined
           }
 
-          // Clear the Canvas and the Grid
+          // Clear the Canvas and each Grid
           context.clearRect(0, 0, canvas.width, canvas.height)
           Jerboa.fill(Map)
 
@@ -326,16 +351,17 @@
           Jerboa.put(Map, Point(24, 16), Cell('\u26D4'))
 
           // Status indicators with (CSS) colors
-          Jerboa.put(Map, Point(1, 1), Cell('\u2665', 'rgb(255, 128, 64)'))
-          Jerboa.write(Map, Point(3, 1), player.hp, 'rgb(255, 128, 64)')
-          Jerboa.put(Map, Point(1, 2), Cell('★', 'cyan'))
-          Jerboa.write(Map, Point(3, 2), player.mp, 'cyan')
-          Jerboa.put(Map, Point(1, 3), Cell('$', 'lightgreen'))
-          Jerboa.write(Map, Point(3, 3), player.go, 'lightgreen')
+          Jerboa.put(UI, Point(1, 1), Cell('\u2665', 'rgb(255, 128, 64)'))
+          Jerboa.write(UI, Point(3, 1), player.hp, 'rgb(255, 128, 64)')
+          Jerboa.put(UI, Point(1, 2), Cell('★', 'cyan'))
+          Jerboa.write(UI, Point(3, 2), player.mp, 'cyan')
+          Jerboa.put(UI, Point(1, 3), Cell('$', 'lightgreen'))
+          Jerboa.write(UI, Point(3, 3), player.go, 'lightgreen')
 
           // Calculate the Offset (in case the Map is bigger than the View)
-          var offset = Jerboa.offset(Map, View, player)
-          Jerboa.render(Map, View, offset, Setting.showGrid)
+          // var offset = Jerboa.offset(Map, View, player)
+          Jerboa.render(Map, View, player, Setting.showBorders)
+          Jerboa.render(UI, View)
 
           // Update the required variables for calculating the FPS
           ++Setting.count
@@ -349,17 +375,18 @@
           if (Setting.showDetails) {
             context.save()
 
-            var textSize = canvas.height / 20
+            var textSize = Math.floor(canvas.height / 20)
             context.textAlign = 'center'
             context.textBaseline = 'middle'
             context.font = textSize.toString() + 'px bold sans'
-            context.lineWidth = 4
+            context.lineWidth = Math.floor(View.cell().height / 5)
             context.strokeStyle = 'black'
             context.fillStyle = 'white'
             renderText(canvas.width/2, textSize * 2, Setting.fps.toString() + ' FPS')
             renderText(canvas.width/2, textSize * 3, canvas.width.toString() + 'x' + canvas.height.toString() + 'px in ' + window.innerWidth + 'x' + window.innerHeight + 'px')
-            renderText(canvas.width/2, textSize * 4, 'View: ' + View.cols + 'x' + View.rows + ' Map: ' + Map.cols() + 'x' + Map.rows())
-            renderText(canvas.width/2, textSize * 5, 'Cell size: ' + View.cellWidth + 'x' + View.cellHeight + 'px')
+            renderText(canvas.width/2, textSize * 4, 'View: ' + View.cols() + 'x' + View.rows() + ' Map: ' + Map.cols() + 'x' + Map.rows())
+            var cell = View.cell()
+            renderText(canvas.width/2, textSize * 5, 'Cell size: ' + cell.width + 'x' + cell.height + 'px')
 
             context.restore()
           }
