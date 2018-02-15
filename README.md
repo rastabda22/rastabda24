@@ -14,8 +14,9 @@ Not only did I clean it up but I also bundled parts of the code into objects (no
 And so, after developing it for a while I arrived at a library that is flexible enough to allow users to play with and understand.
 
 Note:
-- If the Grid has the same size as the View, by using Grid = Jerboa.grid(View) for example, it will fill the entire canvas.
-- Enabling the borders allows you to see how wide some of those characters are. Yikes!
+- You can find a list of Unicode characters [here](https://unicode-table.com/en/) but you have to use HTML codes in the Prototype and Unicode numbers on JSTTS/JerboaTTS,
+- If the Grid has the same size as the View, by using Grid = Jerboa.grid(View) for example, it will fill the entire canvas,
+- Enabling the borders allows you to see how wide some of those Unicode characters are. Yikes!
 
 In these examples, you can move a "Player" character (depicted by the **☻** character) with the cursor keys.  
 They also have the following controls:
