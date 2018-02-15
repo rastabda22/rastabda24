@@ -7,7 +7,7 @@ I quickly made a prototype, a simple "pre" tag that is manipulated through Javas
 
 Since I also wanted to color the letters and handle wider characters I moved to using a "canvas" tag (creating 'JSTTS.html'), in which I developed most of the visual functionalities. It's a Grid of letters to simulate a mono-spaced font rendered into a View, which represents the 'canvas'.  
 Since the HTML was getting crowded I decided to split it, taking the chance to also change its name to avoid confusion with other libraries.  
-I chose the name of an animal. Namely, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa), and removed the 'JS'.  
+I chose the name of an animal. Namely, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa), and removed the 'JS' (JerboaTTS).  
 
 After splitting the project into a jerboa.js and an index.html I started organizing the code.  
 Not only did I clean it up but I also bundled parts of the code into objects (no more loose multi-dimensional arrays).  
