@@ -3,13 +3,13 @@
 A simple Text Terminal Simulator for Javascript.
 
 After watching some Python games like [Terminal RPG](https://stay-alive.itch.io/terminal-rpg) I was intrigued on how hard it would be to simulate that environment in Javascript.  
-I quickly made a prototype, a simple "pre" tag that is manipulated through Javascript.
+I quickly made a prototype (*Terminal.html*), a simple "pre" tag that is manipulated through Javascript.
 
-Since I also wanted to color the letters and handle wider characters I moved to using a "canvas" tag (creating 'JSTTS.html'), in which I developed most of the visual functionalities. It's a Grid of letters to simulate a mono-spaced font rendered into a View, which represents the 'canvas'.  
+Since I also wanted to color the letters and handle wider characters I moved to using a "canvas" tag (*JSTTS.html*), in which I developed most of the visual functionalities. It's a Grid of letters to simulate a mono-spaced font rendered into a View, which represents the 'canvas'.  
 Since the HTML was getting crowded I decided to split it, taking the chance to also change its name to avoid confusion with other libraries.  
-I chose the name of an animal. Namely, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa), instead of the 'JS' (JerboaTTS).  
 
-After splitting the project into a jerboa.js and an index.html I started organizing the code.  
+I chose the name of an animal. Namely, the "hoping desert rodent" [Jerboa](https://en.wikipedia.org/wiki/Jerboa), instead of the 'JS'.  
+After splitting the project into a jerboa.js and an index.html  (*JerboaTTS*) I started organizing the code.  
 Not only did I clean it up but I also bundled parts of the code into objects (no more loose multi-dimensional arrays).  
 And so, after developing it for a while I arrived at a library that is flexible enough to allow users to play with and understand.
 
