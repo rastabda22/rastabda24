@@ -14,7 +14,7 @@ Not only did I clean it up but I also bundled parts of the code into objects (no
 And so, after developing it for a while I arrived at a library that is flexible enough to allow users to play with and understand.
 
 Note:
-- You can find [an index of Unicode characters here](https://unicode-table.com/en/) but you have to use HTML codes in the Prototype and Unicode numbers on JSTTS/JerboaTTS,
+- You can find [an index of Unicode characters here](https://unicode-table.com/en/) but you have to use HTML-codes in the Prototype or Unicode numbers on JSTTS/JerboaTTS,
 - If the Grid has the same size as the View, by using Grid = Jerboa.grid(View) for example, it will fill the entire canvas,
 - Enabling the borders allows you to see how wide some of those Unicode characters are. Yikes!
 
