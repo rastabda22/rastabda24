@@ -2,7 +2,7 @@
 
 A simple Text Terminal Simulator for Javascript.
 
-After watching some Python games made in terminals (command lines) I was intrigued on how hard it would be to simulate them in Javascript.  
+After watching some Python games like [Terminal RPG](https://stay-alive.itch.io/terminal-rpg) I was intrigued on how hard it would be to simulate that environment in Javascript.  
 I quickly made a prototype, a simple "pre" tag that is manipulated through Javascript, but I also wanted to color the letters and handle wider characters.
 
 That's when I moved to using a "canvas" tag in  'JSTTS.html', in which I developed most of the visual functionalities that the current JerboaTTS has.  
