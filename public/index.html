@@ -7,6 +7,8 @@
     <title>JerboaTTS Example</title>
 
     <!--
+      <link rel="copyright" href="license.html" />
+
       The MIT License (MIT)
 
       Copyright (c) 2018 Vítor T. Martins
@@ -77,7 +79,7 @@
 
       // Assign the Context to the View and the default View values
       View.context = context
-      View.default({  'fill': '#bbbbbb', 'font': 'bold monospace' }) // , 'background': 'black' })
+      View.default({ 'fill': '#bbbbbb', 'font': 'bold monospace' })
       View.border('#222222', 2)
 
       // Handle Events
@@ -134,14 +136,20 @@
       window.addEventListener('resize', resize, false)
       window.addEventListener('orientationChange', resize, false)
 
-      // Create the Grid and its many Cells
-      var Map = new Jerboa.grid(40, 20)
+      // Create the Player object with its many values
       var player = Point(4, 4)
       player.hp = 358.49
       player.mp = 25.21
       player.go = 152.44
 
+      // Create the main Grid with specific colors
+      var Map = new Jerboa.grid(40, 20)
+      Map.default({ 'fill': '#bbbbff', 'background': '#4444aa' })
+      Map.border('#222288')
+
+      // Create a UI grid and give it's cells a stroke (an outline)
       var UI = new Jerboa.grid(View)
+      UI.default({ 'stroke': 'black', 'strokeWidth': 3, 'background': undefined })
 
       // Render loop
       var render = function () {
@@ -164,10 +172,6 @@
                 resize()
                 break
               case 90: // Z, decrease View COLS
-                // View.cols -= 1
-                // if (View.cols < 1) { View.cols = 1 }
-                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
-
                 var vc = View.cols()
                 vc -= 1
                 if (vc < 1) { vc = 1 }
@@ -177,10 +181,6 @@
                 resize()
                 break
               case 83: // S, increase View ROWS
-                // View.rows += 1
-                // if (View.rows > 256) { View.rows = 256 }
-                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
-
                 var vr = View.rows()
                 vr += 1
                 if (vr > 256) { vr = 256 }
@@ -190,10 +190,6 @@
                 resize()
                 break
               case 88: // X, decrease View ROWS
-                // View.rows -= 1
-                // if (View.rows < 1) { View.rows = 1 }
-                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
-
                 var vr = View.rows()
                 vr -= 1
                 if (vr < 1) { vr = 1 }
@@ -203,14 +199,6 @@
                 resize()
                 break
               case 68: // D, increase Cell size
-                // var newHeight = View.cellHeight + 1
-                // if (newHeight > 256) { newHeight = 256 }
-                // var newWidth = Math.floor(newHeight * 0.75)
-                // View.cellWidth = newWidth
-                // View.cellHeight = newHeight
-                // View.default.font = newHeight.toString() + 'px bold monospace'
-                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
-
                 var cs = View.cell()
                 cs.height += 1
                 if (cs.height > 256) { cs.height = 256 }
@@ -219,19 +207,10 @@
                 resize()
                 break
               case 67: // C, decrease Cell size
-                // var newHeight = View.cellHeight - 1
-                // if (newHeight < 6) { newHeight = 6 }
-                // var newWidth = Math.floor(newHeight * 0.75)
-                // View.cellWidth = newWidth
-                // View.cellHeight = newHeight
-                // View.default.font = newHeight.toString() + 'px bold monospace'
-                // View.aspectRatio = undefined // Force the Canvas to adapt to the new View
-
                 var cs = View.cell()
                 cs.height -= 1
                 if (cs.height < 8) { cs.height = 8 }
                 View.resize(undefined, undefined, cs.height)
-                // View.cell(cs.height)
 
                 resize()
                 break

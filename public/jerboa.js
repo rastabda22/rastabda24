@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 5
+// Version 6
 //
 // The MIT License (MIT)
 //
@@ -29,7 +29,8 @@ var Rect = function Rect (x = 0, y = 0, w = 0, h = 0) {
   }
 }
 
-// Cell CSS Parameters, same as (value = '_', fill = '#_', background = '#_', font = '_px bold monospace')
+// Cell CSS Parameters, same as {value:_,fill:_,background:_,font:_}
+// Note that the fonts should only have the name (ex: 'monospace')
 var Cell = function Cell (value = undefined, fill = undefined, background = undefined, font = undefined) {
   return {
     'value': value,
@@ -37,6 +38,27 @@ var Cell = function Cell (value = undefined, fill = undefined, background = unde
     'background': background,
     'font': font,
   }
+}
+
+// Convert the Cell Values to UTF16 (for propper rendering)
+function toUTF16(codePoint) {
+    var TEN_BITS = parseInt('1111111111', 2);
+    function u(codeUnit) {
+        return '\\u'+codeUnit.toString(16).toUpperCase();
+    }
+
+    if (codePoint <= 0xFFFF) {
+        return u(codePoint);
+    }
+    codePoint -= 0x10000;
+
+    // Shift right to get to most significant 10 bits
+    var leadSurrogate = 0xD800 + (codePoint >> 10);
+
+    // Mask to get least significant 10 bits
+    var tailSurrogate = 0xDC00 + (codePoint & TEN_BITS);
+
+    return u(leadSurrogate) + u(tailSurrogate);
 }
 
 // Main object
@@ -49,10 +71,23 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
   var _cols = undefined
   var _cells = undefined
 
+  var _defaultCell = {} // Default Cell style
+  var _border = {} // Cell Border style
+
   // Resize the Grid, updating its cells, cols and rows
   this.resize = function resize (cols = undefined, rows = undefined) {
-    _cols = cols === undefined ? _cols : cols
-    _rows = rows === undefined ? _rows : rows
+    // If the first argument is a View or a Grid, copy its size
+    if (cols !== undefined && (cols instanceof Jerboa.view || cols instanceof Jerboa.grid)) {
+      _cols = cols.cols()
+      _rows = cols.rows()
+      _defaultCell = cols.default()
+      _border = cols.border()
+    } else {
+      _cols = cols === undefined ? _cols : cols
+      _rows = rows === undefined ? _rows : rows
+    }
+
+    // Create a multi-dimensional Array of empty objects
     _cells = new Array(_rows)
     for (var row = 0; row < _rows; ++row) {
       _cells[row] = new Array(_cols)
@@ -86,23 +121,47 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
     return _cells[row][col]
   }
 
-  // Initialize the Grid (if the first argument is a View or a Grid, copy its size)
-  if (cols instanceof Jerboa.view || cols instanceof Jerboa.grid) {
-    this.resize(cols.cols(), cols.rows())
-  } else {
-    this.resize(cols, rows)
+  // Set/Get the default Cell style
+  this.default = function defaultCell (props = {}) {
+    for (var prop in props) {
+      _defaultCell[prop] = props[prop]
+    }
+
+    // Create a copy and return it
+    var defaultCell = {}
+    for (var prop in _defaultCell) {
+      defaultCell[prop] = _defaultCell[prop]
+    }
+    return defaultCell
   }
+
+  // Set/Get the style of the Border (Stroke Color and Line Width)
+  this.border = function border (color = undefined, width = 1, visible = false) {
+    _border.color = color === undefined ? _border.color : color
+    _border.width = width
+    _border.visible = visible
+
+    // Create a copy and return it
+    var border = {}
+    for (var prop in _border) {
+      border[prop] = _border[prop]
+    }
+    return border
+  }
+
+  // Initialize the Grid
+  this.resize(cols, rows)
 }
 
 // JerboaView, represents the canvas own COLSxROWS
-Jerboa.view = function JerboaView (cols, rows, cellHeight, context = undefined) {
+Jerboa.view = function JerboaView (cols, rows, cellSize, context = undefined) {
   // Private properties of the View
   var _rows = undefined
   var _cols = undefined
-  var _cellSize = { 'height': undefined, 'ratio': 0.75 }
+  var _cellSize = { 'height': 16, 'ratio': 0.75 }
 
   var _defaultCell = {} // Default Cell style
-  var _border = { 'color': 'black', 'width': 1 } // Cell Border style used when ShowGrid is true
+  var _border = { 'color': 'black', 'width': 1, 'visible': false } // Cell Border style
 
   // Canvas variables, these are updated on any View resize
   this.width = undefined
@@ -123,17 +182,6 @@ Jerboa.view = function JerboaView (cols, rows, cellHeight, context = undefined) 
 
   // Get the cell sizes
   this.cell = function cell () { // height, width = undefined) {
-    // this.changed = (_cellHeight !== height) || (width !== undefined && _cellWidth !== width)
-
-    // _cellHeight = height === undefined ? _cellHeight : height
-    // _cellWidth = _cellHeight
-    // if (width === undefined) {
-    //   _cellWidth = width
-    // } else {
-    //   _cellWidth = _cellHeight
-    //   //   _cellWidth = isNaN(this.ratio) ? _cellHeight : Math.floor(_cellHeight / this.ratio)
-    // }
-    // console.log('cell', _cellWidth, _cellHeight)
     return _cellSize
   }
 
@@ -142,25 +190,46 @@ Jerboa.view = function JerboaView (cols, rows, cellHeight, context = undefined) 
     for (var prop in props) {
       _defaultCell[prop] = props[prop]
     }
-    return _defaultCell
+
+    // Create a copy and return it
+    var defaultCell = {}
+    for (var prop in _defaultCell) {
+      defaultCell[prop] = _defaultCell[prop]
+    }
+    return defaultCell
   }
 
   // Set/Get the style of the Border (Stroke Color and Line Width)
-  this.border = function border (color = undefined, width = undefined) {
+  this.border = function border (color = undefined, width = undefined, visible = false) {
     _border.color = color === undefined ? _border.color : color
     _border.width = width === undefined ? _border.width : width
-    return _border
+    _border.visible = visible
+
+    // Create a copy and return it
+    var border = {}
+    for (var prop in _border) {
+      border[prop] = _border[prop]
+    }
+    return border
   }
 
-  // Resize tge View
+  // Resize the View
   this.resize = function resize (cols = undefined, rows = undefined, cellSize = {}) {
-    _cols = cols === undefined ? _cols : cols
-    _rows = rows === undefined ? _rows : rows
+    // If the first argument is a View or a Grid, copy its size
+    if (cols !== undefined && (cols instanceof Jerboa.view || cols instanceof Jerboa.grid)) {
+      _cols = cols.cols()
+      _rows = cols.rows()
+      _defaultCell = cols.default()
+      _border = cols.border()
+    } else {
+      _cols = cols === undefined ? _cols : cols
+      _rows = rows === undefined ? _rows : rows
+    }
 
+    // If there is a cell size
     if (cellSize !== undefined) {
       if (cellSize['height']) {
         _cellSize.height = cellSize.height
-        // _defaultCell.font = cellSize.height.toString() + 'px bold monospace'
       }
       if (cellSize['ratio']) { _cellSize.ratio = cellSize.ratio }
       if (cellSize['width']) {
@@ -180,7 +249,7 @@ Jerboa.view = function JerboaView (cols, rows, cellHeight, context = undefined) 
   }
 
   // Initialize the View
-  this.resize(cols, rows, cellHeight)
+  this.resize(cols, rows, cellSize)
   if (context !== undefined) { this.context = context }
 }
 
@@ -282,6 +351,7 @@ Jerboa.write = function (grid, position = Point(), text = undefined, fill = unde
     _text = (typeof(text) === 'string' ? text : text.toString())
   }
 
+  // Draw each letter on sequential Cells
   for (let x = 0; x < _text.length; ++x) {
     if (position.x + x > grid.cols()) { break }
     grid.set(position.x + x, position .y, Cell(_text.substring(x, x + 1), fill, background))
@@ -357,7 +427,7 @@ Jerboa.border = function (grid, rect = Rect(), fill = undefined, background = un
     w = grid.cols() - 1
   }
 
-  // Add the Border
+  // Add a Border by using ASCII block characters
   Jerboa.put(grid, Point(x, y), Cell('\u259B', fill, background))
   Jerboa.line(grid, Point(x + 1, y), Point(w, y), Cell('\u2580', fill, background))
   Jerboa.put(grid, Point(w, y), Cell('\u259C', fill, background))
@@ -371,7 +441,7 @@ Jerboa.border = function (grid, rect = Rect(), fill = undefined, background = un
 }
 
 // Render the contents of a grid to a View
-Jerboa.render = function (grid, view, center = Point(0, 0), showGrid = false) {
+Jerboa.render = function (grid, view, center = Point(0, 0), ShowBorders = false) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.render', 'Grid ' + (grid === undefined ? 'is not defined' : 'is not a JesboaGrid'))
     return
@@ -388,14 +458,17 @@ Jerboa.render = function (grid, view, center = Point(0, 0), showGrid = false) {
   var viecol = view.cols()
   var vierow = view.rows()
   var cesiz = view.cell()
-  var halfCW = Math.floor(cesiz.width / 2)
-  var halfCH = Math.floor(cesiz.height / 2)
+  var horizontalOffset = cesiz.width / 2
+  var verticalOffset = cesiz.height / 2
+
+  var gridef = grid.default()
+  var gribor = grid.border()
 
   var viedef = view.default()
   var viebor = view.border()
 
-  // Calculate the offset based on the Center point
-  var offset = Point(0, 0) // center
+  // Calculate the offset based on a Center point
+  var offset = Point(0, 0)
   offset.x = center.x - Math.floor(viecol / 2)
   if (offset.x < 0) { offset.x = 0 }
   if (offset.x + viecol > gricol) { offset.x = gricol - viecol }
@@ -406,6 +479,30 @@ Jerboa.render = function (grid, view, center = Point(0, 0), showGrid = false) {
   // Global settings
   view.context.textAlign = 'center'
   view.context.textBaseline = 'middle'
+
+  // Need to do this first since some symbols are wide enought to take several cells
+  for (var row = 0; row  < vierow; ++row) {
+    for (var col = 0; col < viecol; ++col) {
+      // Center the Grid if it«s smaller than the View
+      var _col = col + (gricol < viecol ? Math.ceil(offset.x / 2) : offset.x)
+      var _row = row + (grirow < vierow ? Math.ceil(offset.y / 2) : offset.y)
+
+      // Ignore values outside the Grid
+      if (_row < 0 || _row > grirow - 1 || _col < 0 || _col > gricol - 1) { continue }
+
+      // Calculate the Position and get the Cell
+      var x = col * cesiz.width
+      var y = row * cesiz.height
+      var cell = grid.get(_col, _row)
+
+      // Paint the Cell if it has a Background color
+      var background = cell.background || gridef.background || viedef.background
+      if (background) {
+        view.context.fillStyle = background
+        view.context.fillRect(x, y, cesiz.width, cesiz.height)
+      }
+    }
+  }
 
   // Render every Cell within the View
   for (var row = 0; row  < vierow; ++row) {
@@ -425,24 +522,40 @@ Jerboa.render = function (grid, view, center = Point(0, 0), showGrid = false) {
       var cell = grid.get(_col, _row)
 
       // Paint the Cell if it has a Background color
-      if (cell.background !== undefined || viedef.background !== undefined) {
-        view.context.fillStyle = cell.background === undefined ? viedef.background : cell.background
-        view.context.fillRect(x, y, cesiz.width, cesiz.height)
-      }
+      // var background = cell.background || gridef.background || viedef.background
+      // if (background) {
+      //   view.context.fillStyle = background
+      //   view.context.fillRect(x, y, cesiz.width, cesiz.height)
+      // }
 
-      // Show a Cell Border if requested
-      if (showGrid) {
-        view.context.lineWidth = viebor.width
-        view.context.strokeStyle = viebor.color
+      // Show a border around each Cell if requested
+      var showBorder = ShowBorders || gribor.visible || viebor.visible
+      if (showBorder) {
+        view.context.lineWidth = gribor.width || viebor.width
+        view.context.strokeStyle = gribor.color || viebor.color
         view.context.strokeRect(x, y, cesiz.width, cesiz.height)
       }
 
-      // Draw the Cells' text value if it has one, in the font/color specified
-      var value = cell.value === undefined ? viedef.value : cell.value
-      if (value !== undefined) {
-        view.context.fillStyle = cell.fill === undefined ? viedef.fill : cell.fill
-        view.context.font = cesiz.height.toString() + 'px ' + (cell.font === undefined ? viedef.font : cell.font)
-        view.context.fillText(value, x + halfCW, y + halfCH)
+      // Draw the Cells' (text) value, in the specified color (and font)
+      var value = cell.value || gridef.value || viedef.value
+      var font = cell.font || gridef.font || viedef.font || 'monospace'
+      if (value) {
+        x += horizontalOffset
+        y += verticalOffset
+
+        view.context.font = cesiz.height.toString() + 'px ' + font
+
+        var stroke = cell.stroke || gridef.stroke || viedef.stroke
+        var strokeWidth = cell.strokeWidth || gridef.strokeWidth || viedef.strokeWidth || 1
+        if (stroke) {
+          view.context.lineWidth = strokeWidth
+          view.context.strokeStyle = stroke
+          view.context.strokeText(value, x, y)
+        }
+
+        var fill = cell.fill || gridef.fill || viedef.fill || 'white'
+        view.context.fillStyle = fill
+        view.context.fillText(value, x, y)
       }
 
       context.restore()
