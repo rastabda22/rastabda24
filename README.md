@@ -34,7 +34,7 @@ They also have the following controls:
 
 ### Version
 
-- JerboaTTS : 5
+- JerboaTTS : 6
 - JSTTS : 8
 - Prototype : 6
 
