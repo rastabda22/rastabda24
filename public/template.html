@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=false" />
+    <meta name="author" content="Vítor T. Martins" />
+    <meta name="description" content="Jerboa Text Terminal Simulator" />
+    <title>JerboaTTS Template</title>
+
+    <!--
+      The MIT License (MIT)
+
+      Copyright (c) 2018 Vítor T. Martins
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    -->
+
+    <style>
+      *{padding:0;margin:0;}
+      html, body{color:#dddddd;background:#222222;}
+      .container{position:absolute;left:50%;top:50%;width:100%;height:100%;}
+      .canvas{display:block;width:100%;height:100%;background:#444444;}
+    </style>
+
+    <script src="jerboa.js"></script>
+
+    <script>
+      var View = new Jerboa.view(40, 20)
+
+      // Events
+      var LastKey = undefined
+    </script>
+  </head>
+
+  <body>
+    <noscript>
+      ABORT! JAVASCRIPT NOT FOUND.
+    </noscript>
+
+    <script>
+      // Create the Container and the Canvas
+      var container = document.createElement('div')
+      container.className = 'container'
+      var canvas = document.createElement('canvas')
+      canvas.className = 'canvas'
+      container.appendChild(canvas)
+      document.body.appendChild(container)
+
+      // Set the Canvas up (needs a 2d context for standard drawing functions)
+      var context = canvas.getContext('2d')
+      if (context === undefined || context === null) {
+          console.error('Canvas.getContext', 'Unable to create a 2D Canvas Context')
+      }
+
+      // Assign the (Canvas) Context to the View
+      View.context = context
+
+      // Handle Events
+      var resize = function resize (event) {
+        if (View.width === window.innerWidth && View.height === window.innerHeight) { return }
+
+        if (View.changed) {
+          canvas.width = View.width
+          canvas.height = View.height
+          View.changed = false
+        }
+
+        var newWidth = window.innerWidth
+        var newHeight = window.innerHeight
+        var newAspectRatio = newWidth / newHeight
+
+        if (newAspectRatio > View.ratio) {
+            newWidth = newHeight * View.ratio
+        } else {
+            newHeight = newWidth / View.ratio
+        }
+
+        container.style.width = newWidth + 'px'
+        container.style.height = newHeight + 'px'
+
+        container.style.marginLeft = (-newWidth/2) + 'px'
+        container.style.marginTop = (-newHeight/2) + 'px'
+
+        View.width = newWidth
+        View.height = newHeight
+      }
+
+      var keyboard = function _keyboard (event) {
+        // console.log('Keyboard', event.type, event.keyCode)
+
+        if (event.type === 'keyup') {
+          LastKey = event.keyCode
+        }
+
+        event.preventDefault()
+      }
+
+      window.addEventListener('keyup', keyboard, false)
+      window.addEventListener('resize', resize, false)
+      window.addEventListener('orientationChange', resize, false)
+
+      var center = Point(2, 2)
+      var Map = new Jerboa.grid(View) // Create a Grid the size of the View
+
+      // Render loop (function that runs every frame)
+      var render = function () {
+        if (LastKey !== undefined) {
+        switch (LastKey) {
+          case 37: // Left, move Center left
+            center.x -= 1
+            if (center.x < 1 ) { center.x = 1 }
+            break
+          case 38: // Up, move Center up
+            center.y -= 1
+            if (center.y < 1) { center.y = 1 }
+            break
+          case 39: // Right, move Center right
+            center.x += 1
+            if (center.x > Map.cols() - 2) { center.x = Map.cols() - 2 }
+            break
+          case 40: // Down, move Center down
+            center.y += 1
+            if (center.y > Map.rows() - 2) { center.y = Map.rows() - 2 }
+            break
+        }
+
+        LastKey = undefined
+      }
+
+        // Clear the Canvas and the Grid
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        Jerboa.fill(Map)
+
+        // Draw everything
+        Jerboa.border( // Border around Map
+          Map)
+
+        Jerboa.put( // Place a single character on (1, 1)
+          Map,
+          center,
+          Cell('O', undefined))
+
+        Jerboa.write( // Write "String"
+          Map,
+          Point(2, 4),
+           "Happy Coding!")
+
+        Jerboa.line( // Draw a Line from (3,3) to (6,6)
+          Map,
+          Point(2, 6),
+          Point(14, 12),
+          Cell(' ', undefined, '#AAAAAA'))
+
+        // Render Grids in the View (canvas) and request the next frame
+        Jerboa.render(Map, View, center)
+        window.requestAnimationFrame(render)
+      }
+
+      resize()
+      window.requestAnimationFrame(render)
+    </script>
+  </body>
+</html>

@@ -250,7 +250,7 @@
         // https://unicode-table.com/en/sets/stars-symbols/
 
         // These characters can be typed as \u0000 with the codepoint instead of the 0000
-        Jerboa.write(Map, Point(2, 4), '<= 0xFFFF')
+        Jerboa.write(Map, Point(2, 2), 'Codepoints\nUp To\n0xFFFF')
 
         Jerboa.put(Map, Point(2, 6), Cell('\u26CF'))
         Jerboa.put(Map, Point(4, 6), Cell('\u262F'))
@@ -333,7 +333,8 @@
         // https://unicode-table.com/en/blocks/supplemental-symbols-and-pictographs/
 
         // These characters would have to be typed with a pair of \u0000. Thank goodness for the Unicode function that converts them!
-        Jerboa.write(Map, Point(23, 4), '> 0xFFFF')
+        Jerboa.write(Map, Point(23, 2), 'Codepoints\nAbove\n0xFFFF')
+
 
         Jerboa.put(Map, Point(23, 6), Cell(Unicode(0X1F310), '#ff0000', '#ffff00')) // A colored symbols ignore the fill color
         Jerboa.put(Map, Point(25, 6), Cell(Unicode(0x1F3E2)))
@@ -380,13 +381,13 @@
         Jerboa.put(Map, Point(35, 14), Cell(Unicode(0x1F985)))
         Jerboa.put(Map, Point(37, 14), Cell(Unicode(0x1F988)))
 
-        Jerboa.put(Map, Point(23, 16), Cell(Unicode(0x1F5F2)))
+        Jerboa.put(Map, Point(23, 16), Cell(Unicode(0x1F3E0)))
         Jerboa.put(Map, Point(25, 16), Cell(Unicode(0x1F3E1)))
         Jerboa.put(Map, Point(27, 16), Cell(Unicode(0x1F3E2)))
         Jerboa.put(Map, Point(29, 16), Cell(Unicode(0x1F3E3)))
         Jerboa.put(Map, Point(31, 16), Cell(Unicode(0x1F3E4)))
         Jerboa.put(Map, Point(33, 16), Cell(Unicode(0x1F3E5)))
-        Jerboa.put(Map, Point(35, 16), Cell(Unicode(0x1F988)))
+        Jerboa.put(Map, Point(35, 16), Cell(Unicode(0x1F98A)))
         Jerboa.put(Map, Point(37, 16), Cell(Unicode(0x1F324)))
 
         Jerboa.put(Map, Point(23, 18), Cell(Unicode(0x1F3F3)))
@@ -397,6 +398,11 @@
         Jerboa.put(Map, Point(33, 18), Cell(Unicode(0x1F4E6)))
         Jerboa.put(Map, Point(35, 18), Cell(Unicode(0x1F989)))
         Jerboa.put(Map, Point(37, 18), Cell(Unicode(0x1F30D)))
+
+        Jerboa.line(Map, Point(13, 1), Point(17, 1), Cell('L'))
+        Jerboa.line(Map, Point(13, 2), Point(13, 5), Cell('I'))
+        Jerboa.line(Map, Point(14, 2), Point(17, 5), Cell('N'))
+        Jerboa.line(Map, Point(17, 2), Point(13, 4), Cell('E'))
 
         // Status indicators with (CSS) colors
         Jerboa.put(UI, Point(1, 1), Cell('\u2665', 'rgb(255, 128, 64)'))

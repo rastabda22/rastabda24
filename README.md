@@ -21,6 +21,7 @@ Note:
 - Enabling the borders allows you to see how wide some of those Unicode characters are. Yikes!
 - I added a meta tag that avoids zooming to the main example (index.html). While it won't affect the canvas it still affects text and we don't want scrollbars.
 - You can't color symbols if they're colored themselves, but you can still color their backgrounds
+- There is a basic 'template.html' file with the minimum code
 
 In these examples, you can move a "Player" character (depicted by the **☻** character) with the cursor keys.  
 They also have the following controls:
@@ -38,7 +39,7 @@ They also have the following controls:
 
 ### Version
 
-- JerboaTTS : 6
+- JerboaTTS : 8
 - JSTTS : 8
 - Prototype : 6
 

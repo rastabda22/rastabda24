@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 7
+// Version 8
 //
 // The MIT License (MIT)
 //
@@ -345,38 +345,53 @@ Jerboa.write = function (grid, position = Point(), text = undefined, fill = unde
   }
 
   // Draw each letter on sequential Cells
-  for (let x = 0; x < _text.length; ++x) {
-    if (position.x + x > grid.cols()) { break }
-    grid.set(position.x + x, position .y, Cell(_text.substring(x, x + 1), fill, background))
+  var x = 0
+  var y = 0
+  for (var i = 0; i < _text.length; ++i) {
+    if (text[i] === '\n' || position.x + x >= grid.cols()) {
+      x = 0
+      y += 1
+      // Only skip the character if it was a line break
+      if (text[i] === '\n') { continue }
+    }
+    grid.set(position.x + x, position.y + y, Cell(_text.substring(i, i + 1), fill, background))
+    x += 1
   }
 }
 
-// Draw a line using a specified Cell. Only supports horizontal or vertical lines
+// Draw a line using a specified Cell. (equatiom: y = mx + h)
 Jerboa.line = function (grid, start = Point(), end = Point(), props = Cell()) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.line', 'Grid ' + (grid === undefined ? 'is not defined' : 'is not a JesboaGrid'))
     return false
   }
 
-  var cell = undefined
-
-  // Horizontal line
-  if (start.y === end.y) {
-    for (let col = start.x; col < end.x; ++col) {
-      grid.set(col, start.y, props)
-    }
-    return true
+  // Make sure we're going from a smaller point
+  if (start.x > end.x || (start.x === end.x && start.y > end.y)) {
+    var temp = end
+    end = start
+    start = temp
   }
 
-  // Vertical line
-  if (start.x === end.x) {
-    for (let row = start.y; row < end.y; ++row) {
-      grid.set(start.x, row, props)
+  var mx = (end.x - start.x) // Difference in X
+  var my = (end.y - start.y) // Difference in Y
+  var m = 0
+
+  if (mx > my) { // If the difference in X is higher
+    m = my / mx
+    for (var col = start.x; col < end.x; ++col) {
+        var row = Math.floor((col - start.x) * m + start.y)
+        grid.set(col, row, props)
     }
-    return true
+  } else { // If the difference in Y is higher
+    m = mx / my
+    for (var row = start.y; row < end.y; ++row) {
+        var col = Math.floor((row - start.y) * m + start.x)
+        grid.set(col, row, props)
+    }
   }
 
-  return false
+  return true
 }
 
 // Add a border to the Grid. This border is created with the ASCII block characters
@@ -531,7 +546,7 @@ Jerboa.render = function (grid, view, center = Point(0, 0), ShowBorders = false)
 
       // Draw the Cells' (text) value, in the specified color (and font)
       var value = cell.value || gridef.value || viedef.value
-      var font = cell.font || gridef.font || viedef.font || 'monospace'
+      var font = cell.font || gridef.font || viedef.font || 'bold monospace'
       if (value) {
         x += horizontalOffset
         y += verticalOffset
