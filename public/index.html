@@ -35,7 +35,7 @@
 
       var Setting = {
         // Toggles
-        'showBorders': false,
+        'showFrame': false,
         'showDetails': false,
 
         // Variables for counting FPS
@@ -79,7 +79,7 @@
       // Assign the Context to the View and the default View values
       View.context = context
       View.default({ 'fill': '#bbbbbb', 'font': 'bold monospace' })
-      View.border('#222222', 2)
+      View.frame('#222222', 2)
 
       // Handle Events
       var resize = function resize (event) {
@@ -144,7 +144,7 @@
       // Create the main Grid with specific colors
       var Map = new Jerboa.grid(40, 20)
       Map.default({ 'fill': '#bbbbff', 'background': '#4444aa' })
-      Map.border('#222288')
+      Map.frame('#222288')
 
       // Create a UI grid and give it's cells a stroke (an outline)
       var UI = new Jerboa.grid(View)
@@ -159,7 +159,7 @@
             Setting.showDetails = !Setting.showDetails
             break
           case 32: // Spacebar, toggle Grid
-            Setting.showBorders = !Setting.showBorders
+            Setting.showFrame = !Setting.showFrame
             break
           case 65: // A, increase View COLS
             var vc = View.cols()
@@ -415,7 +415,7 @@
 
         // Calculate the Offset (in case the Map is bigger than the View)
         // var offset = Jerboa.offset(Map, View, player)
-        Jerboa.render(Map, View, player, Setting.showBorders)
+        Jerboa.render(Map, View, player, Setting.showFrame)
         Jerboa.render(UI, View)
 
         // Update the required variables for calculating the FPS

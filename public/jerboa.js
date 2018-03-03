@@ -65,7 +65,7 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
   var _cells = undefined
 
   var _defaultCell = {} // Default Cell style
-  var _border = {} // Cell Border style
+  var _frame = {} // Cell Border style
 
   // Resize the Grid, updating its cells, cols and rows
   this.resize = function resize (cols = undefined, rows = undefined) {
@@ -74,7 +74,7 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
       _cols = cols.cols()
       _rows = cols.rows()
       _defaultCell = cols.default()
-      _border = cols.border()
+      _frame = cols.frame()
     } else {
       _cols = cols === undefined ? _cols : cols
       _rows = rows === undefined ? _rows : rows
@@ -128,18 +128,18 @@ Jerboa.grid = function JerboaGrid (cols, rows) {
     return defaultCell
   }
 
-  // Set/Get the style of the Border (Stroke Color and Line Width)
-  this.border = function border (color = undefined, width = 1, visible = false) {
-    _border.color = color === undefined ? _border.color : color
-    _border.width = width
-    _border.visible = visible
+  // Set/Get the style of the Frame (Stroke Color and Line Width)
+  this.frame = function frame (color = undefined, width = 1, visible = false) {
+    _frame.color = color === undefined ? _frame.color : color
+    _frame.width = width
+    _frame.visible = visible
 
     // Create a copy and return it
-    var border = {}
-    for (var prop in _border) {
-      border[prop] = _border[prop]
+    var frame = {}
+    for (var prop in _frame) {
+      frame[prop] = _frame[prop]
     }
-    return border
+    return frame
   }
 
   // Initialize the Grid
@@ -154,7 +154,7 @@ Jerboa.view = function JerboaView (cols, rows, cellSize, context = undefined) {
   var _cellSize = { 'height': 16, 'ratio': 0.75 }
 
   var _defaultCell = {} // Default Cell style
-  var _border = { 'color': 'black', 'width': 1, 'visible': false } // Cell Border style
+  var _frame = { 'color': 'black', 'width': 1, 'visible': false } // Cell Border style
 
   // Canvas variables, these are updated on any View resize
   this.width = undefined
@@ -192,18 +192,18 @@ Jerboa.view = function JerboaView (cols, rows, cellSize, context = undefined) {
     return defaultCell
   }
 
-  // Set/Get the style of the Border (Stroke Color and Line Width)
-  this.border = function border (color = undefined, width = undefined, visible = false) {
-    _border.color = color === undefined ? _border.color : color
-    _border.width = width === undefined ? _border.width : width
-    _border.visible = visible
+  // Set/Get the style of the Frame (Stroke Color and Line Width)
+  this.frame = function frame (color = undefined, width = undefined, visible = false) {
+    _frame.color = color === undefined ? _frame.color : color
+    _frame.width = width === undefined ? _frame.width : width
+    _frame.visible = visible
 
     // Create a copy and return it
-    var border = {}
-    for (var prop in _border) {
-      border[prop] = _border[prop]
+    var frame = {}
+    for (var prop in _frame) {
+      frame[prop] = _frame[prop]
     }
-    return border
+    return frame
   }
 
   // Resize the View
@@ -213,7 +213,7 @@ Jerboa.view = function JerboaView (cols, rows, cellSize, context = undefined) {
       _cols = cols.cols()
       _rows = cols.rows()
       _defaultCell = cols.default()
-      _border = cols.border()
+      _frame = cols.frame()
     } else {
       _cols = cols === undefined ? _cols : cols
       _rows = rows === undefined ? _rows : rows
@@ -449,7 +449,7 @@ Jerboa.border = function (grid, rect = Rect(), props = Cell()) {
 }
 
 // Render the contents of a grid to a View
-Jerboa.render = function (grid, view, center = Point(0, 0), ShowBorders = false) {
+Jerboa.render = function (grid, view, center = Point(0, 0), ShowFrame = false) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.render', 'Grid ' + (grid === undefined ? 'is not defined' : 'is not a JesboaGrid'))
     return
@@ -470,10 +470,10 @@ Jerboa.render = function (grid, view, center = Point(0, 0), ShowBorders = false)
   var verticalOffset = cesiz.height / 2
 
   var gridef = grid.default()
-  var gribor = grid.border()
+  var grifra = grid.frame()
 
   var viedef = view.default()
-  var viebor = view.border()
+  var viefra = view.frame()
 
   // Calculate the offset based on a Center point
   var offset = Point(0, 0)
@@ -537,10 +537,10 @@ Jerboa.render = function (grid, view, center = Point(0, 0), ShowBorders = false)
       // }
 
       // Show a border around each Cell if requested
-      var showBorder = ShowBorders || gribor.visible || viebor.visible
-      if (showBorder) {
-        view.context.lineWidth = gribor.width || viebor.width
-        view.context.strokeStyle = gribor.color || viebor.color
+      var ShowFrame = ShowFrame || grifra.visible || viefra.visible
+      if (ShowFrame) {
+        view.context.lineWidth = grifra.width || viefra.width
+        view.context.strokeStyle = grifra.color || viefra.color
         view.context.strokeRect(x, y, cesiz.width, cesiz.height)
       }
 
