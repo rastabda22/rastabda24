@@ -15,6 +15,8 @@ And so, after developing it for a while I arrived at a library that is flexible 
 
 After the latest changes it's apparent that this project has gone beyond Text Terminals since it supports strokes (outlines) and Unicode characters which can have several colors. I had not realized that Unicode had evolved this far!
 
+I made a small (single screen) game to show what one could do with JerboaTTS.
+
 Note:
 - You can find [an index of Unicode characters here](https://unicode-table.com/en/) but you have to use HTML-codes in the Prototype or Unicode numbers on JSTTS/JerboaTTS,
 - If the Grid has the same size as the View, by using Grid = Jerboa.grid(View) for example, it will fill the entire canvas,
@@ -28,11 +30,12 @@ They also have the following controls:
 - A/Z : Increase/Decrease the Views' number of COLS [JerboaTTS]
 - S/X : Increase/Decrease the Views' number of ROWS [JerboaTTS]
 - D/C : Increase/Decrease the Views' cell height (size of the font) [JSTTS/JerboaTTS]
-- Spacebar : Toggle the frames (outline around each cell) [JSTTS/JerboaTTS]
+- Spacebar : Toggle the frames (outline around each cell) [JSTTS/JerboaTTS/Game]
 - Return : Toggle the details (such as FPS and various sizes) [JerboaTTS]
 
 ## Examples (which run in your Browser)
 
+## [Game](https://vimino.gitlab.io/JerboaTTS/game.html)
 ## [JerboaTTS](https://vimino.gitlab.io/JerboaTTS)
 ## [JSTTS](https://vimino.gitlab.io/JerboaTTS/jstts.html)
 ## [Prototype](https://vimino.gitlab.io/JerboaTTS/prototype.html)

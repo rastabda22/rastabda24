@@ -331,7 +331,7 @@ Jerboa.put = function (grid, position = Point(), props = Cell()) {
 }
 
 // Write a string of Text to a sequence of Cells
-Jerboa.write = function (grid, position = Point(), text = undefined, fill = undefined, background = undefined) {
+Jerboa.write = function (grid, position = Point(), text = undefined, fill = undefined, background = undefined, stroke = undefined) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.write', 'Grid ' + (grid === undefined ? 'is not defined' : 'is not a JesboaGrid'))
     return false
@@ -354,7 +354,9 @@ Jerboa.write = function (grid, position = Point(), text = undefined, fill = unde
       // Only skip the character if it was a line break
       if (text[i] === '\n') { continue }
     }
-    grid.set(position.x + x, position.y + y, Cell(_text.substring(i, i + 1), fill, background))
+    var cell = Cell(_text.substring(i, i + 1), fill, background)
+    if (stroke !== undefined) { cell.stroke = stroke }
+    grid.set(position.x + x, position.y + y, cell)
     x += 1
   }
 }

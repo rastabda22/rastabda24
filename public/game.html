@@ -1,0 +1,298 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=false" />
+    <meta name="author" content="Vítor T. Martins" />
+    <meta name="description" content="Jerboa Text Terminal Simulator" />
+    <title>Game Example</title>
+
+    <!--
+      The MIT License (MIT)
+
+      Copyright (c) 2018 Vítor T. Martins
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    -->
+
+    <style>
+      *{padding:0;margin:0;}
+      html, body{color:#dddddd;background:#222222;}
+      .container{position:absolute;left:50%;top:50%;width:100%;height:100%;}
+      .canvas{display:block;width:100%;height:100%;background:#444444;}
+    </style>
+
+    <script src="jerboa.js"></script>
+
+    <script>
+      // The visible area represented as a COLSxROWS matrix
+      // Specifying the Text size can be done by either an object with 'height' and 'ratio' or 'width'
+      var View = new Jerboa.view(30, 15, { 'height': 24, 'ratio': 0.75 })
+
+      // Events
+      var LastKey = undefined
+     </script>
+  </head>
+
+  <body>
+    <noscript>
+      ABORT! JAVASCRIPT NOT FOUND.
+    </noscript>
+
+    <script>
+      // Create the Container and the Canvas
+      var container = document.createElement('div')
+      container.className = 'container'
+      var canvas = document.createElement('canvas')
+      canvas.className = 'canvas'
+      container.appendChild(canvas)
+      document.body.appendChild(container)
+
+      // Set the Canvas up (needs a 2d context for standard drawing functions)
+      var context = canvas.getContext('2d')
+      if (context === undefined || context === null) {
+          console.error('Canvas.getContext', 'Unable to create a 2D Canvas Context')
+      }
+
+      // Assign the Context to the View and the default View values
+      View.context = context
+      View.default({ 'fill': '#bbbbbb', 'font': 'bold monospace' })
+      View.frame('#222222', 2)
+
+      // Handle Events
+      var resize = function resize (event) {
+        // Make sure the size changed
+        if (View.width === window.innerWidth && View.height === window.innerHeight) {
+            return
+        }
+
+        // If the Canvas needs to change we update due to the View
+        if (View.changed) {
+          canvas.width = View.width
+          canvas.height = View.height
+          View.changed = false
+        }
+
+        // https://www.html5rocks.com/en/tutorials/casestudies/gopherwoord-studios-resizing-html5-games/
+
+        // Calculate the position based on the space available
+        var newWidth = window.innerWidth
+        var newHeight = window.innerHeight
+        var newAspectRatio = newWidth / newHeight
+
+        if (newAspectRatio > View.ratio) {
+            newWidth = newHeight * View.ratio
+        } else {
+            newHeight = newWidth / View.ratio
+        }
+
+        // Resize the Container
+        container.style.width = newWidth + 'px'
+        container.style.height = newHeight + 'px'
+
+        // Center the Container
+        container.style.marginLeft = (-newWidth/2) + 'px'
+        container.style.marginTop = (-newHeight/2) + 'px'
+
+        // Update the Display size
+        View.width = newWidth
+        View.height = newHeight
+      }
+
+      var keyboard = function _keyboard (event) {
+        // console.log('Keyboard', event.type, event.keyCode)
+
+        if (event.type === 'keyup') {
+          LastKey = event.keyCode
+        }
+
+        event.preventDefault()
+      }
+
+      window.addEventListener('keyup', keyboard, false)
+      window.addEventListener('resize', resize, false)
+      window.addEventListener('orientationChange', resize, false)
+
+      var showFrame = false
+      var label = { 'value': 'Using JerboaTTS', 'fill': undefined }
+
+      // Create the Player object with its many values
+      var player = Point(5, 4)
+      player.hp = 10
+      player.maxhp = 10
+      player.go = 0
+      player.lock = false
+
+      var Area = []
+
+      // Areas
+      Area[0] = new Jerboa.grid(11, 9)
+      Area[0].default({ 'fill': '#bbffbb', 'background': '#44aa44' })
+      Area[0].frame('#228822')
+
+      //Area[1] = new Jerboa.grid(40, 20)
+      //Area[1].default({ 'fill': '#bbbbff', 'background': '#4444aa' })
+      //Area[1].frame('#222288')
+
+      var currentArea = 0
+      var currentGrid = Area[currentArea]
+
+      // Create a UI grid and give it's cells a stroke (an outline)
+      var UI = new Jerboa.grid(View)
+      var halfUICols = Math.floor(UI.cols() / 2)
+      UI.default({ 'stroke': '#222222', 'strokeWidth': 3, 'background': undefined })
+
+      var interact = function interact (target) {
+        if (target === undefined) { return }
+
+        switch (target) {
+          case 'W': // Work
+            label.value = 'Work:-1\u2665,+4$'
+            if (player.hp > 1) {
+              player.go += 4
+              player.hp -= 1
+            }
+            break
+
+          case 'H': // Home
+            label.value = 'Home:+4\u2665'
+            player.hp += 4
+            if (player.hp > player.maxhp) { player.hp = player.maxhp }
+            break
+
+          case 'G': // Gym
+            label.value = 'Gym:-4\u2665,-10$,+1\u263B'
+            if (player.hp > 4 && player.go >= 10) {
+              player.hp -= 4
+              player.go -= 10
+              player.maxhp += 1
+            }
+            break
+
+          case 'B': // Bar
+            label.value = 'Gym:-40$,+20\u2665!'
+            if (player.go >= 40) {
+              player.go -= 40
+              player.hp += 20
+              if (player.hp > player.maxhp + 10) { player.hp = player.maxhp + 10 }
+            }
+            break
+        }
+      }
+
+      // Render loop
+      var render = function render () {
+        currentGrid = Area[currentArea]
+
+        // Handle Events
+        if (LastKey !== undefined) {
+        switch (LastKey) {
+          case 13: // Enter
+            break
+          case 32: // Spacebar
+            showFrame = !showFrame
+            break
+          case 37: // Left, move Player left
+            if (!player.lock) {
+              var ahead = currentGrid.get(player.x - 1, player.y).value
+              if (ahead === undefined) { // Move if there's nothing there
+                player.x -= 1
+                if (player.x < 1 ) { player.x = 1 }
+              } else { // Otherwise interact with it
+                interact(ahead)
+              }
+            }
+            break
+          case 38: // Up, move Player up
+            if (!player.lock) {
+              var ahead = currentGrid.get(player.x, player.y - 1).value
+              if (ahead === undefined) { // Move if there's nothing there
+                player.y -= 1
+                if (player.y < 1) { player.y = 1 }
+              } else { // Otherwise interact with it
+                interact(ahead)
+              }
+            }
+            break
+          case 39: // Right, move Player right
+            if (!player.lock) {
+              var ahead = currentGrid.get(player.x + 1, player.y).value
+              if (ahead === undefined) { // Move if there's nothing there
+                player.x += 1
+                if (player.x > currentGrid.cols() - 2) { player.x = currentGrid.cols() - 2 }
+              } else { // Otherwise interact with it
+                interact(ahead)
+              }
+            }
+            break
+          case 40: // Down, move Player down
+            if (!player.lock) {
+              var ahead = currentGrid.get(player.x, player.y + 1).value
+              if (ahead === undefined) { // Move if there's nothing there
+                player.y += 1
+                if (player.y > currentGrid.rows() - 2) { player.y = currentGrid.rows() - 2 }
+              } else { // Otherwise interact with it
+                interact(ahead)
+              }
+            }
+            break
+        }
+
+        LastKey = undefined
+      }
+
+        // Clear the Canvas and the Grid
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        Jerboa.fill(UI)
+        Jerboa.fill(currentGrid)
+
+        Jerboa.put(currentGrid, player, Cell(player.hp > player.maxhp * 0.2 ? Unicode(0x263A) : Unicode(0x2639)))
+
+        if (currentArea === 0) { // Draw the Map
+          Jerboa.border(currentGrid, Rect(), Cell('#'))
+          //Jerboa.put(currentGrid, Point(6, 9), Cell('_'))
+
+          Jerboa.put(currentGrid, Point(2, 2), Cell('W'))
+          Jerboa.put(currentGrid, Point(8, 2), Cell('H'))
+          Jerboa.put(currentGrid, Point(2, 6), Cell('G'))
+          Jerboa.put(currentGrid, Point(8, 6), Cell('B'))
+        }
+
+        // Change the stroke style of the heart and its value when it's over the max
+        // Since this is outside the Cell factorys' purpose we add it by hand
+        var extra = player.hp > player.maxhp
+        var heart = Cell('\u2665', 'rgb(255, 128, 64)')
+        if (extra) {
+          heart.stroke = 'rgb(128, 64, 16)'
+        } else {
+          heart.stroke = undefined
+        }
+        Jerboa.put(UI, Point(1, 1), heart)
+        Jerboa.write(UI, Point(3, 1), player.hp.toString(), 'rgb(255, 128, 64)', undefined, extra ? 'rgb(128, 64, 16)' : undefined)
+        Jerboa.put(UI, Point(1, 2), Cell('$', 'lightgreen'))
+        Jerboa.write(UI, Point(3, 2), player.go.toString(), 'lightgreen')
+
+        // Draw a centered label
+        if (label !== undefined && label.value !== undefined && label.value.length > 0) {
+          var cx = (halfUICols - Math.ceil(label.value.length / 2))
+          Jerboa.write(UI, Point(cx, 1), label.value, label.fill)
+        }
+
+        // Render the current Area followed by the UI
+        Jerboa.render(currentGrid, View, player, showFrame)
+        Jerboa.render(UI, View)
+
+        // Ready for the next Render call
+        window.requestAnimationFrame(render)
+      }
+
+      // Set the Display and View up then start the Render loop
+      resize()
+      window.requestAnimationFrame(render)
+    </script>
+  </body>
+</html>
