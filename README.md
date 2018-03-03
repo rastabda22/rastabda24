@@ -28,7 +28,7 @@ They also have the following controls:
 - A/Z : Increase/Decrease the Views' number of COLS [JerboaTTS]
 - S/X : Increase/Decrease the Views' number of ROWS [JerboaTTS]
 - D/C : Increase/Decrease the Views' cell height (size of the font) [JSTTS/JerboaTTS]
-- Spacebar : Toggle the grid around each cell [JSTTS/JerboaTTS]
+- Spacebar : Toggle the frames (outline around each cell) [JSTTS/JerboaTTS]
 - Return : Toggle the details (such as FPS and various sizes) [JerboaTTS]
 
 ## Examples (which run in your Browser)
