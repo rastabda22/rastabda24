@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 8
+// Version 9
 //
 // The MIT License (MIT)
 //
@@ -395,7 +395,7 @@ Jerboa.line = function (grid, start = Point(), end = Point(), props = Cell()) {
 }
 
 // Add a border to the Grid. This border is created with the ASCII block characters
-Jerboa.border = function (grid, rect = Rect(), fill = undefined, background = undefined) {
+Jerboa.border = function (grid, rect = Rect(), props = Cell()) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.border', 'Grid ' + (grid === undefined ? 'is not defined' : 'is not a JesboaGrid'))
     return
@@ -436,16 +436,16 @@ Jerboa.border = function (grid, rect = Rect(), fill = undefined, background = un
   }
 
   // Add a Border by using ASCII block characters
-  Jerboa.put(grid, Point(x, y), Cell('\u259B', fill, background))
-  Jerboa.line(grid, Point(x + 1, y), Point(w, y), Cell('\u2580', fill, background))
-  Jerboa.put(grid, Point(w, y), Cell('\u259C', fill, background))
+  Jerboa.put(grid, Point(x, y), Cell(props.value === undefined ? '\u259B' : props.value, props.fill, props.background))
+  Jerboa.line(grid, Point(x + 1, y), Point(w, y), Cell(props.value === undefined ? '\u2580' : props.value, props.fill, props.background))
+  Jerboa.put(grid, Point(w, y), Cell(props.value === undefined ? '\u259C' : props.value, props.fill, props.background))
 
-  Jerboa.line(grid, Point(x, y + 1), Point(x, h), Cell('\u258C', fill, background))
-  Jerboa.line(grid, Point(w, y + 1), Point(w, h), Cell('\u2590', fill, background))
+  Jerboa.line(grid, Point(x, y + 1), Point(x, h), Cell(props.value === undefined ? '\u258C' : props.value, props.fill, props.background))
+  Jerboa.line(grid, Point(w, y + 1), Point(w, h), Cell(props.value === undefined ? '\u2590' : props.value, props.fill, props.background))
 
-  Jerboa.put(grid, Point(x, h), Cell('\u2599', fill, background))
-  Jerboa.line(grid, Point(x + 1, h), Point(w, h), Cell('\u2584', fill, background))
-  Jerboa.put(grid, Point(w, h), Cell('\u259F', fill, background))
+  Jerboa.put(grid, Point(x, h), Cell(props.value === undefined ? '\u2599' : props.value, props.fill, props.background))
+  Jerboa.line(grid, Point(x + 1, h), Point(w, h), Cell(props.value === undefined ? '\u2584' : props.value, props.fill, props.background))
+  Jerboa.put(grid, Point(w, h), Cell(props.value === undefined ? '\u259F' : props.value, props.fill, props.background))
 }
 
 // Render the contents of a grid to a View

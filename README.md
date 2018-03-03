@@ -39,7 +39,7 @@ They also have the following controls:
 
 ### Version
 
-- JerboaTTS : 8
+- JerboaTTS : 9
 - JSTTS : 8
 - Prototype : 6
 
