@@ -24,7 +24,6 @@ Note:
 - I added a meta tag that avoids zooming to the main example (index.html). While it won't affect the canvas it still affects text and we don't want scrollbars.
 - You can't color symbols if they're colored themselves, but you can still color their backgrounds
 - It's easy to use a custom font, check the index.html for an example. It involves adding a @font-face to the css and setting it.
-- (note: *serif*, *sans-serif* and *monospace* are always available)
   Check the index.html for an example of changing the default font on the View and on the UI Grid.
 - There is a basic 'template.html' file with the minimum code
 
