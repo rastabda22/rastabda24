@@ -23,6 +23,14 @@ Note:
 - Enabling the frames allows you to see how wide some of those Unicode characters are. Yikes!
 - I added a meta tag that avoids zooming to the main example (index.html). While it won't affect the canvas it still affects text and we don't want scrollbars.
 - You can't color symbols if they're colored themselves, but you can still color their backgrounds
+- It's easy to change the font of an object and to use custom fonts you only need to add
+    "@font-face {
+      font-family: "a_name_here";
+      src: url("font_file_here.ttf");
+    }"
+  to the page css and use it by changing the font to 'a_name_here', you can also add ', backup_font'.
+  Note that serif, sans-serif and monospace are browsers base fonts and are always available.
+  Check the index.html for an example of changing the default font on the View and on the UI Grid.
 - There is a basic 'template.html' file with the minimum code
 
 In the following examples, you can move a "Player" character (depicted by the **☻** character) with the cursor keys.  
@@ -42,7 +50,7 @@ They also have the following controls:
 
 ### Version
 
-- JerboaTTS : 9
+- JerboaTTS : 10
 - JSTTS : 8
 - Prototype : 6
 

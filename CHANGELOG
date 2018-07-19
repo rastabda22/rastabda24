@@ -128,3 +128,14 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
     Added the Default Cell and Border to Grids (copied when it's created from an existing View/Grid)
     Added support to the Stroke and StrokeWidth properties to Cells
     Backgrounds are now drawn before the Values to avoid clipping the wider ones when there's a background
+
+  ... bug fixing and some optimizing ...
+
+  Jerboa 10: 2018-07-19
+    Tested using a custom font. Works in anything with a font property.
+    All that is needed is adding the @font-face css and changing the font
+
+    Added the missing ';' to the scripts and other minute changes (based on the AirBnB coding style)
+    Some features may be ES6 only, hopefully it works great
+
+    Made sure that whitespaces (' ') aren't 'written' unless the option to include them is 'true'

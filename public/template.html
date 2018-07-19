@@ -43,125 +43,128 @@
 
     <script>
       // Create the Container and the Canvas
-      var container = document.createElement('div')
-      container.className = 'container'
-      var canvas = document.createElement('canvas')
-      canvas.className = 'canvas'
-      container.appendChild(canvas)
-      document.body.appendChild(container)
+      const container = document.createElement('div');
+      container.className = 'container';
+      const canvas = document.createElement('canvas');
+      canvas.className = 'canvas';
+      container.appendChild(canvas);
+      document.body.appendChild(container);
 
       // Set the Canvas up (needs a 2d context for standard drawing functions)
-      var context = canvas.getContext('2d')
+      const context = canvas.getContext('2d');
       if (context === undefined || context === null) {
-          console.error('Canvas.getContext', 'Unable to create a 2D Canvas Context')
+        console.error('Canvas.getContext', 'Unable to create a 2D Canvas Context');
       }
 
       // Assign the (Canvas) Context to the View
-      View.context = context
+      View.context = context;
 
       // Handle Events
-      var resize = function resize (event) {
-        if (View.width === window.innerWidth && View.height === window.innerHeight) { return }
+      const resize = function resize(event) {
+        if (View.width === window.innerWidth && View.height === window.innerHeight) { return; }
 
         if (View.changed) {
-          canvas.width = View.width
-          canvas.height = View.height
-          View.changed = false
+          canvas.width = View.width;
+          canvas.height = View.height;
+          View.changed = false;
         }
 
-        var newWidth = window.innerWidth
-        var newHeight = window.innerHeight
-        var newAspectRatio = newWidth / newHeight
+        let newWidth = window.innerWidth;
+        let newHeight = window.innerHeight;
+        const newAspectRatio = newWidth / newHeight;
 
         if (newAspectRatio > View.ratio) {
-            newWidth = newHeight * View.ratio
+          newWidth = newHeight * View.ratio;
         } else {
-            newHeight = newWidth / View.ratio
+          newHeight = newWidth / View.ratio;
         }
 
-        container.style.width = newWidth + 'px'
-        container.style.height = newHeight + 'px'
+        container.style.width = `${newWidth}px`;
+        container.style.height = `${newHeight}px`;
 
-        container.style.marginLeft = (-newWidth/2) + 'px'
-        container.style.marginTop = (-newHeight/2) + 'px'
+        container.style.marginLeft = `${-newWidth / 2}px`;
+        container.style.marginTop = `${-newHeight / 2}px`;
 
-        View.width = newWidth
-        View.height = newHeight
-      }
+        View.width = newWidth;
+        View.height = newHeight;
+      };
 
-      var keyboard = function _keyboard (event) {
+      const keyboard = function _keyboard(event) {
         // console.log('Keyboard', event.type, event.keyCode)
 
         if (event.type === 'keyup') {
-          LastKey = event.keyCode
+          LastKey = event.keyCode;
         }
 
-        event.preventDefault()
-      }
+        event.preventDefault();
+      };
 
-      window.addEventListener('keyup', keyboard, false)
-      window.addEventListener('resize', resize, false)
-      window.addEventListener('orientationChange', resize, false)
+      window.addEventListener('keyup', keyboard, false);
+      window.addEventListener('resize', resize, false);
+      window.addEventListener('orientationChange', resize, false);
 
-      var center = Point(2, 2)
-      var Map = new Jerboa.grid(View) // Create a Grid the size of the View
+      const center = Point(2, 2);
+      const Map = new Jerboa.grid(View); // Create a Grid the size of the View
 
       // Render loop (function that runs every frame)
       var render = function () {
         if (LastKey !== undefined) {
-        switch (LastKey) {
-          case 37: // Left, move Center left
-            center.x -= 1
-            if (center.x < 1 ) { center.x = 1 }
-            break
-          case 38: // Up, move Center up
-            center.y -= 1
-            if (center.y < 1) { center.y = 1 }
-            break
-          case 39: // Right, move Center right
-            center.x += 1
-            if (center.x > Map.cols() - 2) { center.x = Map.cols() - 2 }
-            break
-          case 40: // Down, move Center down
-            center.y += 1
-            if (center.y > Map.rows() - 2) { center.y = Map.rows() - 2 }
-            break
+          switch (LastKey) {
+            case 37: // Left, move Center left
+              center.x -= 1;
+              if (center.x < 1) { center.x = 1; }
+              break;
+            case 38: // Up, move Center up
+              center.y -= 1;
+              if (center.y < 1) { center.y = 1; }
+              break;
+            case 39: // Right, move Center right
+              center.x += 1;
+              if (center.x > Map.cols() - 2) { center.x = Map.cols() - 2; }
+              break;
+            case 40: // Down, move Center down
+              center.y += 1;
+              if (center.y > Map.rows() - 2) { center.y = Map.rows() - 2; }
+              break;
+          }
+
+          LastKey = undefined;
         }
 
-        LastKey = undefined
-      }
-
         // Clear the Canvas and the Grid
-        context.clearRect(0, 0, canvas.width, canvas.height)
-        Jerboa.fill(Map)
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        Jerboa.fill(Map);
 
         // Draw everything
         Jerboa.border( // Border around Map
-          Map)
+          Map);
 
         Jerboa.put( // Place a single character on (1, 1)
           Map,
           center,
-          Cell('O', undefined))
+          Cell('O', undefined),
+        );
 
         Jerboa.write( // Write "String"
           Map,
           Point(2, 4),
-           "Happy Coding!")
+          'Happy Coding!',
+        );
 
         Jerboa.line( // Draw a Line from (3,3) to (6,6)
           Map,
           Point(2, 6),
           Point(14, 12),
-          Cell(' ', undefined, '#AAAAAA'))
+          Cell(' ', undefined, '#AAAAAA'),
+        );
 
         // Render Grids in the View (canvas) and request the next frame
-        Jerboa.render(Map, View, center)
-        window.requestAnimationFrame(render)
-      }
+        Jerboa.render(Map, View, center);
+        window.requestAnimationFrame(render);
+      };
 
-      resize()
-      window.requestAnimationFrame(render)
+      resize();
+      window.requestAnimationFrame(render);
     </script>
   </body>
 </html>
