@@ -35,7 +35,7 @@ They also have the following controls:
 - Spacebar : Toggle the frames (outline around each cell) [JSTTS/JerboaTTS/Game]
 - Return : Toggle the details (such as FPS and various sizes) [JerboaTTS]
 
-## Examples (which run in your Browser)
+## Examples
 
 ## [Game](https://vimino.gitlab.io/JerboaTTS/game.html)
 ## [JerboaTTS](https://vimino.gitlab.io/JerboaTTS)
