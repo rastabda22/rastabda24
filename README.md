@@ -24,7 +24,7 @@ Note:
 - I added a meta tag that avoids zooming to the main example (JerboaTTS). While it won't affect the canvas it still affects text and we don't want scrollbars
 - You can't color symbols if they're colored themselves, but you can still color their backgrounds
 - It's easy to use a custom font, see JerboaTTS for an example. It requires declaring a @font-face in the css and changing the font property
-- Clear a Grid with Jerboa.clear (it's the same as filling it with ' ')
+- Clear a Grid with Jerboa.clear (same as Jerboa.fill with an empty Cell and the force flag)
 - There is a basic 'template.html' with minimum code.
 
 In the following examples, you can move a "Player" character (depicted by the **☻** character) with the cursor keys.  
@@ -44,7 +44,7 @@ They also have the following controls:
 
 ### Version
 
-- JerboaTTS : 11
+- JerboaTTS : 12
 - JSTTS : 8
 - Prototype : 6
 

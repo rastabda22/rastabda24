@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 11
+// Version 12
 //
 // The MIT License (MIT)
 //

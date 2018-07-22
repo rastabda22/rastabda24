@@ -145,3 +145,7 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
     This makes sure that the Background is consistant with was was there
 
     Turned all let/const back to var, no point in requiring ES6 yet
+
+  Jerboa 12: 2018-07-22
+    Added a Jerboa.clear function which calls Jerboa.fill with an empty Cell and the force flag
+    This makes sure that all cells are cleared instead of setting them to ' '
