@@ -12,7 +12,7 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // Point, same as {x:_,y:_}
-const Point = function Point(x = 0, y = 0) {
+var Point = function Point(x = 0, y = 0) {
   return {
     x,
     y,
@@ -20,7 +20,7 @@ const Point = function Point(x = 0, y = 0) {
 };
 
 // Rect(angle), same as (x:_,y:_,w:_,h:_)
-const Rect = function Rect(x = 0, y = 0, w = 0, h = 0) {
+var Rect = function Rect(x = 0, y = 0, w = 0, h = 0) {
   return {
     x,
     y,
@@ -31,7 +31,7 @@ const Rect = function Rect(x = 0, y = 0, w = 0, h = 0) {
 
 // Cell CSS Parameters, same as {value:_,fill:_,background:_,font:_}
 // Note that the fonts should only have the name (ex: 'monospace')
-const Cell = function Cell(value = undefined, fill = undefined, background = undefined, font = undefined) {
+var Cell = function Cell(value = undefined, fill = undefined, background = undefined, font = undefined) {
   return {
     value,
     fill,
@@ -43,7 +43,7 @@ const Cell = function Cell(value = undefined, fill = undefined, background = und
 
 // Convert a hexadecimal value to a character (required to support characters above \uFFFF)
 // Adapted from https://stackoverflow.com/questions/5446492/unicode-characters-from-charcode-in-javascript-for-charcodes-0xffff#5446605
-const Unicode = function Unicode(codePoint = 0x0000) {
+var Unicode = function Unicode(codePoint = 0x0000) {
   // console.log('Unicode', codePoint)
 
   if (codePoint > 0xFFFF) {
@@ -54,17 +54,17 @@ const Unicode = function Unicode(codePoint = 0x0000) {
 };
 
 // Main object
-const Jerboa = {};
+var Jerboa = {};
 
 // JerboaGrid, has a matrix of COLSxROWS cells
 Jerboa.grid = function JerboaGrid(cols, rows) {
   // Private properties of the Grid
-  let _rows;
-  let _cols;
-  let _cells;
+  var _rows;
+  var _cols;
+  var _cells;
 
-  let _defaultCell = {}; // Default Cell style
-  let _frame = {}; // Cell Border style
+  var _defaultCell = {}; // Default Cell style
+  var _frame = {}; // Cell Border style
 
   // Resize the Grid, updating its cells, cols and rows
   this.resize = function resize(cols = undefined, rows = undefined) {
@@ -81,9 +81,9 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
 
     // Create a multi-dimensional Array of empty objects
     _cells = new Array(_rows);
-    for (let row = 0; row < _rows; ++row) {
+    for (var row = 0; row < _rows; ++row) {
       _cells[row] = new Array(_cols);
-      for (let col = 0; col < _cols; ++col) {
+      for (var col = 0; col < _cols; ++col) {
         _cells[row][col] = {};
       }
     }
@@ -104,7 +104,7 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
     if (row < 0 || row >= _rows) { return; }
     if (col < 0 || col >= _cols) { return; }
     for (prop in props) {
-      if (prop !== 'value' && props[prop] === undefined) { continue; }
+      if (prop !== 'value' && prop !== 'fill' && props[prop] === undefined) { continue; }
     _cells[row][col][prop] = props[prop];
     }
   };
@@ -123,7 +123,7 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
     }
 
     // Create a copy and return it
-    const defaultCell = {};
+    var defaultCell = {};
     for (var prop in _defaultCell) {
       defaultCell[prop] = _defaultCell[prop];
     }
@@ -137,8 +137,8 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
     _frame.visible = visible;
 
     // Create a copy and return it
-    const frame = {};
-    for (const prop in _frame) {
+    var frame = {};
+    for (var prop in _frame) {
       frame[prop] = _frame[prop];
     }
     return frame;
@@ -151,12 +151,12 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
 // JerboaView, represents the canvas own COLSxROWS
 Jerboa.view = function JerboaView(cols, rows, cellSize, context = undefined) {
   // Private properties of the View
-  let _rows;
-  let _cols;
-  const _cellSize = { height: 16, ratio: 0.75 };
+  var _rows;
+  var _cols;
+  var _cellSize = { height: 16, ratio: 0.75 };
 
-  let _defaultCell = {}; // Default Cell style
-  let _frame = { color: 'black', width: 1, visible: false }; // Cell Border style
+  var _defaultCell = {}; // Default Cell style
+  var _frame = { color: 'black', width: 1, visible: false }; // Cell Border style
 
   // Canvas variables, these are updated on any View resize
   this.width = undefined;
@@ -187,7 +187,7 @@ Jerboa.view = function JerboaView(cols, rows, cellSize, context = undefined) {
     }
 
     // Create a copy and return it
-    const defaultCell = {};
+    var defaultCell = {};
     for (var prop in _defaultCell) {
       defaultCell[prop] = _defaultCell[prop];
     }
@@ -201,8 +201,8 @@ Jerboa.view = function JerboaView(cols, rows, cellSize, context = undefined) {
     _frame.visible = visible;
 
     // Create a copy and return it
-    const frame = {};
-    for (const prop in _frame) {
+    var frame = {};
+    for (var prop in _frame) {
       frame[prop] = _frame[prop];
     }
     return frame;
@@ -256,7 +256,7 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
   }
 
   // Get the Y component of the area and make sure it's within the Grid
-  let y = rect.y === undefined ? 0 : rect.y;
+  var y = rect.y === undefined ? 0 : rect.y;
   if (y < 0) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     y = 0;
@@ -290,8 +290,8 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
   }
 
   // Set the property of every Cell within the area
-  for (let row = y; row <= h; ++row) {
-    for (let col = x; col <= w; ++col) {
+  for (var row = y; row <= h; ++row) {
+    for (var col = x; col <= w; ++col) {
       grid.set(col, row, props);
     }
   }
@@ -307,7 +307,7 @@ Jerboa.put = function (grid, position = Point(), props = Cell()) {
   }
 
   // Get the Y component of the position and make sure it's within the Grid
-  let y = position.y;
+  var y = position.y;
   if (y < 0) {
     console.warn(`Jerboa.put(${x}, ${y})`, `Position outside grid (${grid.cols()}, ${grid.rows()})`);
     y = 0;
@@ -346,20 +346,20 @@ Jerboa.write = function (grid, position = Point(), text = undefined, fill = unde
     _text = (typeof (text) === 'string' ? text : text.toString());
   }
 
-  // Draw each letter on sequential Cells
-  let x = 0;
-  let y = 0;
-  for (let i = 0; i < _text.length; ++i) {
+  // Draw each varter on sequential Cells
+  var x = 0;
+  var y = 0;
+  for (var i = 0; i < _text.length; ++i) {
     if (text[i] === '\n' || position.x + x >= grid.cols()) {
       x = 0;
       y += 1;
       // Only skip the character if it was a line break
       if (text[i] === '\n') { continue; }
     }
-    let letter = _text.substring(i, i + 1);
+    var varter = _text.substring(i, i + 1);
     // Don't put anything there if it's a whitespace unless it's forced
-    if (whitespace || letter !== ' ') {
-      const cell = Cell(letter, fill, background);
+    if (whitespace || varter !== ' ') {
+      var cell = Cell(varter, fill, background);
       if (stroke !== undefined) { cell.stroke = stroke; }
       grid.set(position.x + x, position.y + y, cell);
     }
@@ -376,14 +376,14 @@ Jerboa.line = function (grid, start = Point(), end = Point(), props = Cell()) {
 
   // Make sure we're going from a smaller point
   if (start.x > end.x || (start.x === end.x && start.y > end.y)) {
-    const temp = end;
+    var temp = end;
     end = start;
     start = temp;
   }
 
-  const mx = (end.x - start.x); // Difference in X
-  const my = (end.y - start.y); // Difference in Y
-  let m = 0;
+  var mx = (end.x - start.x); // Difference in X
+  var my = (end.y - start.y); // Difference in Y
+  var m = 0;
 
   if (mx > my) { // If the difference in X is higher
     m = my / mx;
@@ -410,7 +410,7 @@ Jerboa.border = function (grid, rect = Rect(), props = Cell()) {
   }
 
   // Get the Y component of the area and make sure it's within the Grid
-  let y = rect.y === undefined ? 0 : rect.y;
+  var y = rect.y === undefined ? 0 : rect.y;
   if (y < 0) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     y = 0;
@@ -469,22 +469,22 @@ Jerboa.render = function (grid, view, center = Point(0, 0), ShowFrame = false) {
   }
 
   // Get tbe values common to all cells to avoid repeatedly looking for them
-  const gricol = grid.cols();
-  const grirow = grid.rows();
-  const viecol = view.cols();
-  const vierow = view.rows();
-  const cesiz = view.cell();
-  const horizontalOffset = cesiz.width / 2;
-  const verticalOffset = cesiz.height / 2;
+  var gricol = grid.cols();
+  var grirow = grid.rows();
+  var viecol = view.cols();
+  var vierow = view.rows();
+  var cesiz = view.cell();
+  var horizontalOffset = cesiz.width / 2;
+  var verticalOffset = cesiz.height / 2;
 
-  const gridef = grid.default();
-  const grifra = grid.frame();
+  var gridef = grid.default();
+  var grifra = grid.frame();
 
-  const viedef = view.default();
-  const viefra = view.frame();
+  var viedef = view.default();
+  var viefra = view.frame();
 
   // Calculate the offset based on a Center point
-  const offset = Point(0, 0);
+  var offset = Point(0, 0);
   offset.x = center.x - Math.floor(viecol / 2);
   if (offset.x < 0) { offset.x = 0; }
   if (offset.x + viecol > gricol) { offset.x = gricol - viecol; }
@@ -512,7 +512,7 @@ Jerboa.render = function (grid, view, center = Point(0, 0), ShowFrame = false) {
       var cell = grid.get(_col, _row);
 
       // Paint the Cell if it has a Background color
-      const background = cell.background || gridef.background || viedef.background;
+      var background = cell.background || gridef.background || viedef.background;
       if (background) {
         view.context.fillStyle = background;
         view.context.fillRect(x, y, cesiz.width, cesiz.height);
@@ -553,23 +553,23 @@ Jerboa.render = function (grid, view, center = Point(0, 0), ShowFrame = false) {
       }
 
       // Draw the Cells' (text) value, in the specified color (and font)
-      const value = cell.value || gridef.value || viedef.value;
-      const font = cell.font || gridef.font || viedef.font || 'bold monospace';
+      var value = cell.value || gridef.value || viedef.value;
+      var font = cell.font || gridef.font || viedef.font || 'bold monospace';
       if (value) {
         x += horizontalOffset;
         y += verticalOffset;
 
         view.context.font = `${cesiz.height.toString()}px ${font}`;
 
-        const stroke = cell.stroke || gridef.stroke || viedef.stroke;
-        const strokeWidth = cell.strokeWidth || gridef.strokeWidth || viedef.strokeWidth || 1;
+        var stroke = cell.stroke || gridef.stroke || viedef.stroke;
+        var strokeWidth = cell.strokeWidth || gridef.strokeWidth || viedef.strokeWidth || 1;
         if (stroke) {
           view.context.lineWidth = strokeWidth;
           view.context.strokeStyle = stroke;
           view.context.strokeText(value, x, y);
         }
 
-        const fill = cell.fill || gridef.fill || viedef.fill || 'white';
+        var fill = cell.fill || gridef.fill || viedef.fill || 'white';
         view.context.fillStyle = fill;
         view.context.fillText(value, x, y);
       }

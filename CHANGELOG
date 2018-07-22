@@ -139,3 +139,9 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
     Some features may be ES6 only, hopefully it works great
 
     Made sure that whitespaces (' ') aren't 'written' unless the option to include them is 'true'
+
+  Jerboa 11: 2018-07-21
+    Made sure that Jerboa only replaces the value or the fill if undefined (on Put)
+    This makes sure that the Background is consistant with was was there
+
+    Turned all let/const back to var, no point in requiring ES6 yet
