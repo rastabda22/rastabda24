@@ -100,11 +100,11 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
   };
 
   // Set the value of a Cell
-  this.set = function set(col, row, props) {
+  this.set = function set(col, row, props, force = false) {
     if (row < 0 || row >= _rows) { return; }
     if (col < 0 || col >= _cols) { return; }
     for (prop in props) {
-      if (props[prop] === undefined) { continue; }
+      if (!force && props[prop] === undefined) { continue; }
       _cells[row][col][prop] = props[prop];
     }
   };
@@ -249,7 +249,7 @@ Jerboa.view = function JerboaView(cols, rows, cellSize, context = undefined) {
 };
 
 // Fill an Area of a JerboaGrid with a Character
-Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
+Jerboa.fill = function (grid, rect = Rect(), props = Cell(), force = false) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.fill', `Grid ${grid === undefined ? 'is not defined' : 'is not a JerboaGrid'}`);
     return false;
@@ -292,7 +292,7 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
   // Set the property of every Cell within the area
   for (var row = y; row <= h; ++row) {
     for (var col = x; col <= w; ++col) {
-      grid.set(col, row, props);
+      grid.set(col, row, props, force);
     }
   }
 
@@ -301,7 +301,7 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
 
 // Clear the grid contents
 Jerboa.clear = function (grid) {
-  Jerboa.fill(grid, undefined, Cell(' '));
+  Jerboa.fill(grid, undefined, Cell(), true);
 }
 
 // Set a Cells' value

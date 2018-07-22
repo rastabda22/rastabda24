@@ -247,8 +247,8 @@
 
         // Clear the Canvas and the Grid
         context.clearRect(0, 0, canvas.width, canvas.height);
-        Jerboa.fill(UI);
-        Jerboa.fill(currentGrid);
+        Jerboa.clear(UI);
+        Jerboa.clear(currentGrid);
 
         Jerboa.put(currentGrid, player, Cell(player.hp > player.maxhp * 0.2 ? Unicode(0x263A) : Unicode(0x2639)));
 
