@@ -104,8 +104,8 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
     if (row < 0 || row >= _rows) { return; }
     if (col < 0 || col >= _cols) { return; }
     for (prop in props) {
-      if (prop !== 'value' && prop !== 'fill' && props[prop] === undefined) { continue; }
-    _cells[row][col][prop] = props[prop];
+      if (props[prop] === undefined) { continue; }
+      _cells[row][col][prop] = props[prop];
     }
   };
 
@@ -266,7 +266,7 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
   }
 
   // Get the H component of the area and make sure it's within the Grid
-  var h = rect.h === undefined || rect.h === 0 ? grid.rows() - 1 : rect.h;
+  var h = rect.h === undefined || rect.h === 0 ? grid.rows() - 1 : rect.y + rect.h - 1;
   if (h >= grid.rows()) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     h = grid.rows() - 1;
@@ -283,7 +283,7 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
   }
 
   // Get the W component of the area and make sure it's within the Grid
-  var w = rect.w === undefined || rect.w === 0 ? grid.cols() - 1 : rect.w;
+  var w = rect.w === undefined || rect.w === 0 ? grid.cols() - 1 : rect.x + rect.w - 1;
   if (w >= grid.cols()) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     w = grid.cols() - 1;
@@ -299,6 +299,11 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell()) {
   return true;
 };
 
+// Clear the grid contents
+Jerboa.clear = function (grid) {
+  Jerboa.fill(grid, undefined, Cell(' '));
+}
+
 // Set a Cells' value
 Jerboa.put = function (grid, position = Point(), props = Cell()) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
@@ -310,20 +315,20 @@ Jerboa.put = function (grid, position = Point(), props = Cell()) {
   var y = position.y;
   if (y < 0) {
     console.warn(`Jerboa.put(${x}, ${y})`, `Position outside grid (${grid.cols()}, ${grid.rows()})`);
-    y = 0;
+    return;
   } else if (y >= grid.rows()) {
     console.warn(`Jerboa.put(${x}, ${y})`, `Position outside grid (${grid.cols()}, ${grid.rows()})`);
-    y = grid.rows() - 1;
+    return;
   }
 
   // Get the X component of the position and make sure it's within the Grid
   var x = position.x;
   if (x < 0) {
     console.warn(`Jerboa.put(${x}, ${y})`, `Position outside grid (${grid.cols()}, ${grid.rows()})`);
-    x = 0;
+    return;
   } else if (x >= grid.cols()) {
     console.warn(`Jerboa.put(${x}, ${y})`, `Position outside grid (${grid.cols()}, ${grid.rows()})`);
-    x = grid.cols() - 1;
+    return;
   }
 
   // Set the Cells popeties
