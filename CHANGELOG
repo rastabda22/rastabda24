@@ -149,3 +149,8 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
   Jerboa 12: 2018-07-22
     Added a Jerboa.clear function which calls Jerboa.fill with an empty Cell and the force flag
     This makes sure that all cells are cleared instead of setting them to ' '
+
+  Jerboa 13: 2018-07-22
+    Jerboa.fill now assumes it's the entire grid if no shape is identified or it's an empty Rect.
+    Jerboa.fill assumes a rect size of 1x1 if the shape is a Point (thus no w or h).
+    Minor changes

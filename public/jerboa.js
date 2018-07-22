@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 12
+// Version 13
 //
 // The MIT License (MIT)
 //
@@ -14,6 +14,7 @@
 // Point, same as {x:_,y:_}
 var Point = function Point(x = 0, y = 0) {
   return {
+    type: 'Point',
     x,
     y,
   };
@@ -22,6 +23,7 @@ var Point = function Point(x = 0, y = 0) {
 // Rect(angle), same as (x:_,y:_,w:_,h:_)
 var Rect = function Rect(x = 0, y = 0, w = 0, h = 0) {
   return {
+    type: 'Rect',
     x,
     y,
     w,
@@ -44,8 +46,6 @@ var Cell = function Cell(value = undefined, fill = undefined, background = undef
 // Convert a hexadecimal value to a character (required to support characters above \uFFFF)
 // Adapted from https://stackoverflow.com/questions/5446492/unicode-characters-from-charcode-in-javascript-for-charcodes-0xffff#5446605
 var Unicode = function Unicode(codePoint = 0x0000) {
-  // console.log('Unicode', codePoint)
-
   if (codePoint > 0xFFFF) {
     codePoint -= 0x10000;
     return String.fromCharCode(0xD800 + (codePoint >> 10), 0xDC00 + (codePoint & 0x3FF));
@@ -249,14 +249,23 @@ Jerboa.view = function JerboaView(cols, rows, cellSize, context = undefined) {
 };
 
 // Fill an Area of a JerboaGrid with a Character
-Jerboa.fill = function (grid, rect = Rect(), props = Cell(), force = false) {
+Jerboa.fill = function (grid, shape, props = Cell(), force = false) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.fill', `Grid ${grid === undefined ? 'is not defined' : 'is not a JerboaGrid'}`);
     return false;
   }
 
+  if (shape === undefined) {
+    shape = Rect(0, 0, grid.w, grid.h);
+  }
+
+  if (shape.type === 'Point') {
+    shape.w = 1;
+    shape.h = 1;
+  }
+
   // Get the Y component of the area and make sure it's within the Grid
-  var y = rect.y === undefined ? 0 : rect.y;
+  var y = shape.y === undefined ? 0 : shape.y;
   if (y < 0) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     y = 0;
@@ -266,14 +275,14 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell(), force = false) {
   }
 
   // Get the H component of the area and make sure it's within the Grid
-  var h = rect.h === undefined || rect.h === 0 ? grid.rows() - 1 : rect.y + rect.h - 1;
+  var h = shape.h === undefined || shape.h === 0 ? grid.rows() - 1 : shape.y + shape.h - 1;
   if (h >= grid.rows()) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     h = grid.rows() - 1;
   }
 
   // Get the X component of the area and make sure it's within the Grid
-  var x = rect.x === undefined ? 0 : rect.x;
+  var x = shape.x === undefined ? 0 : shape.x;
   if (x < 0) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     x = 0;
@@ -283,7 +292,7 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell(), force = false) {
   }
 
   // Get the W component of the area and make sure it's within the Grid
-  var w = rect.w === undefined || rect.w === 0 ? grid.cols() - 1 : rect.x + rect.w - 1;
+  var w = shape.w === undefined || shape.w === 0 ? grid.cols() - 1 : shape.x + shape.w - 1;
   if (w >= grid.cols()) {
     console.warn(`Jerboa.fill(${x}, ${y}, ${w}, ${h})`, `Area outside grid (${grid.cols()}, ${grid.rows()})`);
     w = grid.cols() - 1;
@@ -301,7 +310,7 @@ Jerboa.fill = function (grid, rect = Rect(), props = Cell(), force = false) {
 
 // Clear the grid contents
 Jerboa.clear = function (grid) {
-  Jerboa.fill(grid, undefined, Cell(), true);
+  Jerboa.fill(grid, undefined, undefined, true);
 }
 
 // Set a Cells' value
