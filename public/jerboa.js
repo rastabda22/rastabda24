@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 13
+// Version 14
 //
 // The MIT License (MIT)
 //
@@ -111,9 +111,21 @@ Jerboa.grid = function JerboaGrid(cols, rows) {
 
   // Get the value of a Cell
   this.get = function get(col, row) {
-    if (row < 0 || row > _rows) { return; }
-    if (_rows < 1 || col < 0 || col > _cols) { return; }
-    return _cells[row][col];
+    var x = col;
+    var y = row;
+    if (col.x) {
+      x = col.x;
+    }
+    if (col.y) {
+      y = col.y;
+    } else if (row.y) {
+      y = row.y;
+    } else {
+      y = row;
+    }
+    if (_rows < 1 || y < 0 || y > _rows) { return; }
+    if (_cols < 1 || x < 0 || x > _cols) { return; }
+    return _cells[y][x];
   };
 
   // Set/Get the default Cell style

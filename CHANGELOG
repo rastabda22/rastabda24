@@ -154,3 +154,6 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
     Jerboa.fill now assumes it's the entire grid if no shape is identified or it's an empty Rect.
     Jerboa.fill assumes a rect size of 1x1 if the shape is a Point (thus no w or h).
     Minor changes
+
+  Jerboa 14: 2018-07-23
+    Jerboa.get can now take values from objects (like Point and Rect) to determine the col (x) and row (y)
