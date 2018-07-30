@@ -25,6 +25,7 @@ Note:
 - You can't color symbols if they're colored themselves, but you can still color their backgrounds
 - It's easy to use a custom font, see JerboaTTS for an example. It requires declaring a @font-face in the css and changing the font property
 - Clear a Grid with Jerboa.clear (same as Jerboa.fill with an empty Cell and the force flag)
+- Using Jerboa.write with a 'null' position or Point component will center it. This applies all lines if it's multi-line so watch out.
 - There is a basic 'template.html' with minimum code.
 
 In the following examples, you can move a "Player" character (depicted by the **☻** character) with the cursor keys.  
@@ -44,7 +45,7 @@ They also have the following controls:
 
 ### Version
 
-- JerboaTTS : 14
+- JerboaTTS : 15
 - JSTTS : 8
 - Prototype : 6
 
