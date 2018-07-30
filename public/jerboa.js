@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 14
+// Version 15
 //
 // The MIT License (MIT)
 //
@@ -359,6 +359,7 @@ Jerboa.put = function (grid, position = Point(), props = Cell()) {
 };
 
 // Write a string of Text to a sequence of Cells
+// Not specifying an Point.x makes it center
 Jerboa.write = function (grid, position = Point(), text = undefined, fill = undefined, background = undefined, stroke = undefined, whitespace = false) {
   if (grid === undefined || !(grid instanceof Jerboa.grid)) {
     console.error('Jerboa.write', `Grid ${grid === undefined ? 'is not defined' : 'is not a JerboaGrid'}`);
@@ -372,24 +373,30 @@ Jerboa.write = function (grid, position = Point(), text = undefined, fill = unde
     _text = (typeof (text) === 'string' ? text : text.toString());
   }
 
-  // Draw each varter on sequential Cells
+  // Draw each character on sequential Cells
   var x = 0;
   var y = 0;
-  for (var i = 0; i < _text.length; ++i) {
-    if (text[i] === '\n' || position.x + x >= grid.cols()) {
-      x = 0;
-      y += 1;
-      // Only skip the character if it was a line break
-      if (text[i] === '\n') { continue; }
+  var lines = _text.split('\n');
+  var centerX = Math.floor(grid.cols() / 2);
+  var centerY = Math.floor(View.rows() / 2);
+  var posY = position !== null && position.y !== null ? position.y : centerY; // - Math.floor(1/2);
+
+  for (var i = 0; i < lines.length; ++i) {
+    var posX = position !== null && position.x !== null ? position.x : centerX - Math.floor(lines[i].length / 2);
+    for (var j = 0; j < lines[i].length; ++j) {
+      var varter = lines[i][j].substring(i, i + 1);
+      // Don't put anything there if it's a whitespace unless it's forced
+      if (whitespace || varter !== ' ') {
+        var cell = Cell(varter, fill, background);
+        if (stroke !== undefined) {
+          cell.stroke = stroke;
+        }
+        grid.set(posX + x, posY + y, cell);
+      }
+      x += 1;
     }
-    var varter = _text.substring(i, i + 1);
-    // Don't put anything there if it's a whitespace unless it's forced
-    if (whitespace || varter !== ' ') {
-      var cell = Cell(varter, fill, background);
-      if (stroke !== undefined) { cell.stroke = stroke; }
-      grid.set(position.x + x, position.y + y, cell);
-    }
-    x += 1;
+    x = 0;
+    y += 1;
   }
 };
 
