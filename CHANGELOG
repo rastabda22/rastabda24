@@ -157,3 +157,6 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
 
   Jerboa 14: 2018-07-23
     Jerboa.get can now take values from objects (like Point and Rect) to determine the col (x) and row (y)
+
+  Jerboa 15: 2018-07-30
+    Jerboa.write will now center if the position specified is null or the components of a Point are null. Multi-line text will be drawn on top of each-other.
