@@ -160,3 +160,8 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
 
   Jerboa 15: 2018-07-30
     Jerboa.write will now center if the position specified is null or the components of a Point are null. Multi-line text will be drawn on top of each-other.
+
+  Jerboa 16: 2018-08-02
+    Jerboa.write was calculating CenterX based on View.rows():
+        var centerY = Math.floor(View.rows() / 2);
+    Changed it to grid.rows(), as it does for centerX

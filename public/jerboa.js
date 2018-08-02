@@ -1,5 +1,5 @@
 // Javascript Text Terminal Simulator
-// Version 15
+// Version 16
 //
 // The MIT License (MIT)
 //
@@ -378,7 +378,7 @@ Jerboa.write = function (grid, position = Point(), text = undefined, fill = unde
   var y = 0;
   var lines = _text.split('\n');
   var centerX = Math.floor(grid.cols() / 2);
-  var centerY = Math.floor(View.rows() / 2);
+  var centerY = Math.floor(grid.rows() / 2);
   var posY = position !== null && position.y !== null ? position.y : centerY; // - Math.floor(1/2);
 
   for (var i = 0; i < lines.length; ++i) {
