@@ -51,6 +51,6 @@ They also have the following controls:
 
 ### License
 
-Copyright &copy; 2018, Vítor T. Martins
+Copyright &copy; 2018, Vítor "VIMinO" Martins
 
 Licensed under the [MIT License ](https://opensource.org/licenses/MIT).
