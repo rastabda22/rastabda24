@@ -20,6 +20,10 @@
     -->
 
     <style>
+      @font-face {
+        font-family: "Libertine";
+        src: url("LinBiolinum_RBah.ttf");
+      }
       *{padding:0;margin:0;}
       html, body{color:#dddddd;background:#222222;}
       .container{position:absolute;left:50%;top:50%;width:100%;height:100%;}
@@ -31,7 +35,7 @@
     <script>
       // The visible area represented as a COLSxROWS matrix
       // Specifying the Text size can be done by either an object with 'height' and 'ratio' or 'width'
-      var View = new Jerboa.view(30, 15, { 'height': 24, 'ratio': 0.75 })
+      var View = new Jerboa.view(30, 15, { 'height': 24, 'ratio': 0.75 });
 
       var Setting = {
         // Toggles
@@ -43,15 +47,15 @@
         'interval': 1000,
         'count': 0,
         'fps': 0,
-      }
+      };
 
       // Events
-      var LastKey = undefined
+      var LastKey = undefined;
 
       // Auxiliary function to draw the Detail text
       var renderText = function (x, y, text) {
-        context.strokeText(text, x, y)
-        context.fillText(text, x, y)
+        context.strokeText(text, x, y);
+        context.fillText(text, x, y);
       }
      </script>
   </head>
@@ -63,186 +67,187 @@
 
     <script>
       // Create the Container and the Canvas
-      var container = document.createElement('div')
-      container.className = 'container'
-      var canvas = document.createElement('canvas')
-      canvas.className = 'canvas'
-      container.appendChild(canvas)
-      document.body.appendChild(container)
+      const container = document.createElement('div');
+      container.className = 'container';
+      const canvas = document.createElement('canvas');
+      canvas.className = 'canvas';
+      container.appendChild(canvas);
+      document.body.appendChild(container);
 
       // Set the Canvas up (needs a 2d context for standard drawing functions)
-      var context = canvas.getContext('2d')
+      const context = canvas.getContext('2d');
       if (context === undefined || context === null) {
-          console.error('Canvas.getContext', 'Unable to create a 2D Canvas Context')
+        console.error('Canvas.getContext', 'Unable to create a 2D Canvas Context');
       }
 
       // Assign the Context to the View and the default View values
-      View.context = context
-      View.default({ 'fill': '#bbbbbb', 'font': 'bold monospace' })
-      View.frame('#222222', 2)
+      View.context = context;
+
+      View.default({ fill: '#bbbbbb', font: 'Libertine, sans-serif' });
+      View.frame('#222222', 2);
 
       // Handle Events
-      var resize = function resize (event) {
+      const resize = function resize(event) {
         // Make sure the size changed
         if (View.width === window.innerWidth && View.height === window.innerHeight) {
-            return
+          return;
         }
 
         // If the Canvas needs to change we update due to the View
         if (View.changed) {
-          canvas.width = View.width
-          canvas.height = View.height
-          View.changed = false
+          canvas.width = View.width;
+          canvas.height = View.height;
+          View.changed = false;
         }
 
         // https://www.html5rocks.com/en/tutorials/casestudies/gopherwoord-studios-resizing-html5-games/
 
         // Calculate the position based on the space available
-        var newWidth = window.innerWidth
-        var newHeight = window.innerHeight
-        var newAspectRatio = newWidth / newHeight
+        let newWidth = window.innerWidth;
+        let newHeight = window.innerHeight;
+        const newAspectRatio = newWidth / newHeight;
 
         if (newAspectRatio > View.ratio) {
-            newWidth = newHeight * View.ratio
+          newWidth = newHeight * View.ratio;
         } else {
-            newHeight = newWidth / View.ratio
+          newHeight = newWidth / View.ratio;
         }
 
         // Resize the Container
-        container.style.width = newWidth + 'px'
-        container.style.height = newHeight + 'px'
+        container.style.width = `${newWidth}px`;
+        container.style.height = `${newHeight}px`;
 
         // Center the Container
-        container.style.marginLeft = (-newWidth/2) + 'px'
-        container.style.marginTop = (-newHeight/2) + 'px'
+        container.style.marginLeft = `${-newWidth / 2}px`;
+        container.style.marginTop = `${-newHeight / 2}px`;
 
         // Update the Display size
-        View.width = newWidth
-        View.height = newHeight
-      }
+        View.width = newWidth;
+        View.height = newHeight;
+      };
 
-      var keyboard = function _keyboard (event) {
+      const keyboard = function _keyboard(event) {
         // console.log('Keyboard', event.type, event.keyCode)
 
         if (event.type === 'keyup') {
-          LastKey = event.keyCode
+          LastKey = event.keyCode;
         }
 
-        event.preventDefault()
-      }
+        event.preventDefault();
+      };
 
-      window.addEventListener('keyup', keyboard, false)
-      window.addEventListener('resize', resize, false)
-      window.addEventListener('orientationChange', resize, false)
+      window.addEventListener('keyup', keyboard, false);
+      window.addEventListener('resize', resize, false);
+      window.addEventListener('orientationChange', resize, false);
 
       // Create the Player object with its many values
-      var player = Point(17, 4)
-      player.hp = 358.49
-      player.mp = 25.21
-      player.go = 152.44
+      const player = Point(17, 4);
+      player.hp = 358.49;
+      player.mp = 25.21;
+      player.go = 152.44;
 
       // Create the main Grid with specific colors
-      var Map = new Jerboa.grid(40, 20)
-      Map.default({ 'fill': '#bbbbff', 'background': '#4444aa' })
-      Map.frame('#222288')
+      const Map = new Jerboa.grid(40, 20);
+      Map.default({ fill: '#bbbbff', background: '#4444aa' });
+      Map.frame('#222288');
 
       // Create a UI grid and give it's cells a stroke (an outline)
-      var UI = new Jerboa.grid(View)
-      UI.default({ 'stroke': 'black', 'strokeWidth': 3, 'background': undefined })
+      const UI = new Jerboa.grid(View);
+      UI.default({ stroke: 'black', strokeWidth: 3, background: undefined, font: 'bold monospace' });
 
       // Render loop
       var render = function () {
         // Handle Events
         if (LastKey !== undefined) {
-        switch (LastKey) {
-          case 13: // Enter, toggle Details (FPS, etc)
-            Setting.showDetails = !Setting.showDetails
-            break
-          case 32: // Spacebar, toggle Grid
-            Setting.showFrame = !Setting.showFrame
-            break
-          case 65: // A, increase View COLS
-            var vc = View.cols()
-            vc += 1
-            if (vc > 256) { vc = 256 }
-            View.resize(vc)
-            UI.resize(vc)
+          switch (LastKey) {
+            case 13: // Enter, toggle Details (FPS, etc)
+              Setting.showDetails = !Setting.showDetails;
+              break;
+            case 32: // Spacebar, toggle Grid
+              Setting.showFrame = !Setting.showFrame;
+              break;
+            case 65: // A, increase View COLS
+              var vc = View.cols();
+              vc += 1;
+              if (vc > 256) { vc = 256; }
+              View.resize(vc);
+              UI.resize(vc);
 
-            resize()
-            break
-          case 90: // Z, decrease View COLS
-            var vc = View.cols()
-            vc -= 1
-            if (vc < 1) { vc = 1 }
-            View.resize(vc)
-            UI.resize(vc)
+              resize();
+              break;
+            case 90: // Z, decrease View COLS
+              var vc = View.cols();
+              vc -= 1;
+              if (vc < 1) { vc = 1; }
+              View.resize(vc);
+              UI.resize(vc);
 
-            resize()
-            break
-          case 83: // S, increase View ROWS
-            var vr = View.rows()
-            vr += 1
-            if (vr > 256) { vr = 256 }
-            View.resize(undefined, vr)
-            UI.resize(undefined ,vr)
+              resize();
+              break;
+            case 83: // S, increase View ROWS
+              var vr = View.rows();
+              vr += 1;
+              if (vr > 256) { vr = 256; }
+              View.resize(undefined, vr);
+              UI.resize(undefined, vr);
 
-            resize()
-            break
-          case 88: // X, decrease View ROWS
-            var vr = View.rows()
-            vr -= 1
-            if (vr < 1) { vr = 1 }
-            View.resize(undefined, vr)
-            UI.resize(undefined ,vr)
+              resize();
+              break;
+            case 88: // X, decrease View ROWS
+              var vr = View.rows();
+              vr -= 1;
+              if (vr < 1) { vr = 1; }
+              View.resize(undefined, vr);
+              UI.resize(undefined, vr);
 
-            resize()
-            break
-          case 68: // D, increase Cell size
-            var cs = View.cell()
-            cs.height += 1
-            if (cs.height > 256) { cs.height = 256 }
-            View.resize(undefined, undefined, cs.height)
+              resize();
+              break;
+            case 68: // D, increase Cell size
+              var cs = View.cell();
+              cs.height += 1;
+              if (cs.height > 256) { cs.height = 256; }
+              View.resize(undefined, undefined, cs.height);
 
-            resize()
-            break
-          case 67: // C, decrease Cell size
-            var cs = View.cell()
-            cs.height -= 1
-            if (cs.height < 8) { cs.height = 8 }
-            View.resize(undefined, undefined, cs.height)
+              resize();
+              break;
+            case 67: // C, decrease Cell size
+              var cs = View.cell();
+              cs.height -= 1;
+              if (cs.height < 8) { cs.height = 8; }
+              View.resize(undefined, undefined, cs.height);
 
-            resize()
-            break
-          case 37: // Left, move Player left
-            player.x -= 1
-            if (player.x < 1 ) { player.x = 1 }
-            break
-          case 38: // Up, move Player up
-            player.y -= 1
-            if (player.y < 1) { player.y = 1 }
-            break
-          case 39: // Right, move Player right
-            player.x += 1
-            if (player.x > Map.cols() - 2) { player.x = Map.cols() - 2 }
-            break
-          case 40: // Down, move Player down
-            player.y += 1
-            if (player.y > Map.rows() - 2) { player.y = Map.rows() - 2 }
-            break
+              resize();
+              break;
+            case 37: // Left, move Player left
+              player.x -= 1;
+              if (player.x < 1) { player.x = 1; }
+              break;
+            case 38: // Up, move Player up
+              player.y -= 1;
+              if (player.y < 1) { player.y = 1; }
+              break;
+            case 39: // Right, move Player right
+              player.x += 1;
+              if (player.x > Map.cols() - 2) { player.x = Map.cols() - 2; }
+              break;
+            case 40: // Down, move Player down
+              player.y += 1;
+              if (player.y > Map.rows() - 2) { player.y = Map.rows() - 2; }
+              break;
+          }
+
+          LastKey = undefined;
         }
 
-        LastKey = undefined
-      }
-
         // Clear the Canvas and each Grid
-        context.clearRect(0, 0, canvas.width, canvas.height)
-        Jerboa.fill(Map)
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        Jerboa.clear(Map);
 
         // Draw a Border around the Map
-        Jerboa.border(Map)
+        Jerboa.border(Map);
 
         // Draw the Player character
-        Jerboa.put(Map, Point(player.x, player.y), Cell('\u263B'))
+        Jerboa.put(Map, Point(player.x, player.y), Cell('\u263B'));
 
 
         // https://unicode-table.com/en/blocks/miscellaneous-symbols/
@@ -250,209 +255,209 @@
         // https://unicode-table.com/en/sets/stars-symbols/
 
         // These characters can be typed as \u0000 with the codepoint instead of the 0000
-        Jerboa.write(Map, Point(2, 2), 'Codepoints\nUp To\n0xFFFF')
+        Jerboa.write(Map, Point(2, 2), 'Codepoints\nUp To\n0xFFFF');
 
-        Jerboa.put(Map, Point(2, 6), Cell('\u26CF'))
-        Jerboa.put(Map, Point(4, 6), Cell('\u262F'))
-        Jerboa.put(Map, Point(6, 6), Cell('\u264C'))
-        Jerboa.put(Map, Point(8, 6), Cell('\u26F1'))
-        Jerboa.put(Map, Point(10, 6), Cell('\u26F3'))
-        Jerboa.put(Map, Point(12, 6), Cell('\u26F4'))
-        Jerboa.put(Map, Point(14, 6), Cell('\u26FA'))
-        Jerboa.put(Map, Point(16, 6), Cell('\u2619'))
-        Jerboa.put(Map, Point(18, 6), Cell('\u2618'))
-        Jerboa.put(Map, Point(20, 6), Cell('\u26C4'))
+        Jerboa.put(Map, Point(2, 6), Cell('\u26CF'));
+        Jerboa.put(Map, Point(4, 6), Cell('\u262F'));
+        Jerboa.put(Map, Point(6, 6), Cell('\u264C'));
+        Jerboa.put(Map, Point(8, 6), Cell('\u26F1'));
+        Jerboa.put(Map, Point(10, 6), Cell('\u26F3'));
+        Jerboa.put(Map, Point(12, 6), Cell('\u26F4'));
+        Jerboa.put(Map, Point(14, 6), Cell('\u26FA'));
+        Jerboa.put(Map, Point(16, 6), Cell('\u2619'));
+        Jerboa.put(Map, Point(18, 6), Cell('\u2618'));
+        Jerboa.put(Map, Point(20, 6), Cell('\u26C4'));
 
-        Jerboa.put(Map, Point(2, 8), Cell('\u2689'))
-        Jerboa.put(Map, Point(4, 8), Cell('\u2697'))
-        Jerboa.put(Map, Point(6, 8), Cell('\u26C7'))
-        Jerboa.put(Map, Point(8, 8), Cell('\u26F8'))
-        Jerboa.put(Map, Point(10, 8), Cell('\u26F9'))
-        Jerboa.put(Map, Point(12, 8), Cell('\u26BD'))
-        Jerboa.put(Map, Point(14, 8), Cell('\u26BE'))
-        Jerboa.put(Map, Point(16, 8), Cell('\u26C5'))
-        Jerboa.put(Map, Point(18, 8), Cell('\u26C6'))
-        Jerboa.put(Map, Point(20, 8), Cell('\u2638'))
+        Jerboa.put(Map, Point(2, 8), Cell('\u2689'));
+        Jerboa.put(Map, Point(4, 8), Cell('\u2697'));
+        Jerboa.put(Map, Point(6, 8), Cell('\u26C7'));
+        Jerboa.put(Map, Point(8, 8), Cell('\u26F8'));
+        Jerboa.put(Map, Point(10, 8), Cell('\u26F9'));
+        Jerboa.put(Map, Point(12, 8), Cell('\u26BD'));
+        Jerboa.put(Map, Point(14, 8), Cell('\u26BE'));
+        Jerboa.put(Map, Point(16, 8), Cell('\u26C5'));
+        Jerboa.put(Map, Point(18, 8), Cell('\u26C6'));
+        Jerboa.put(Map, Point(20, 8), Cell('\u2638'));
 
-        Jerboa.put(Map, Point(2, 10), Cell('\u26BF'))
-        Jerboa.put(Map, Point(4, 10), Cell('\u26D3'))
-        Jerboa.put(Map, Point(6, 10), Cell('\u26EC'))
-        Jerboa.put(Map, Point(8, 10), Cell('\u26E4'))
-        Jerboa.put(Map, Point(10, 10), Cell('\u26F6'))
-        Jerboa.put(Map, Point(12, 10), Cell('\u26FD'))
-        Jerboa.put(Map, Point(14, 10), Cell('\u26DF'))
-        Jerboa.put(Map, Point(16, 10), Cell('\u261B'))
-        Jerboa.put(Map, Point(18, 10), Cell('\u261A'))
-        Jerboa.put(Map, Point(20, 10), Cell('\u2602'))
+        Jerboa.put(Map, Point(2, 10), Cell('\u26BF'));
+        Jerboa.put(Map, Point(4, 10), Cell('\u26D3'));
+        Jerboa.put(Map, Point(6, 10), Cell('\u26EC'));
+        Jerboa.put(Map, Point(8, 10), Cell('\u26E4'));
+        Jerboa.put(Map, Point(10, 10), Cell('\u26F6'));
+        Jerboa.put(Map, Point(12, 10), Cell('\u26FD'));
+        Jerboa.put(Map, Point(14, 10), Cell('\u26DF'));
+        Jerboa.put(Map, Point(16, 10), Cell('\u261B'));
+        Jerboa.put(Map, Point(18, 10), Cell('\u261A'));
+        Jerboa.put(Map, Point(20, 10), Cell('\u2602'));
 
-        Jerboa.put(Map, Point(2, 12), Cell('\u269D'))
-        Jerboa.put(Map, Point(4, 12), Cell('\u2698'))
-        Jerboa.put(Map, Point(6, 12), Cell('\u2699'))
-        Jerboa.put(Map, Point(8, 12), Cell('\u269B'))
-        Jerboa.put(Map, Point(10, 12), Cell('\u2693'))
-        Jerboa.put(Map, Point(12, 12), Cell('\u2694'))
-        Jerboa.put(Map, Point(14, 12), Cell('\u265E'))
-        Jerboa.put(Map, Point(16, 12), Cell('\u260E'))
-        Jerboa.put(Map, Point(18, 12), Cell('\u2726'))
-        Jerboa.put(Map, Point(20, 12), Cell('\u2600'))
+        Jerboa.put(Map, Point(2, 12), Cell('\u269D'));
+        Jerboa.put(Map, Point(4, 12), Cell('\u2698'));
+        Jerboa.put(Map, Point(6, 12), Cell('\u2699'));
+        Jerboa.put(Map, Point(8, 12), Cell('\u269B'));
+        Jerboa.put(Map, Point(10, 12), Cell('\u2693'));
+        Jerboa.put(Map, Point(12, 12), Cell('\u2694'));
+        Jerboa.put(Map, Point(14, 12), Cell('\u265E'));
+        Jerboa.put(Map, Point(16, 12), Cell('\u260E'));
+        Jerboa.put(Map, Point(18, 12), Cell('\u2726'));
+        Jerboa.put(Map, Point(20, 12), Cell('\u2600'));
 
-        Jerboa.put(Map, Point(2, 14), Cell('\u2764'))
-        Jerboa.put(Map, Point(4, 14), Cell('\u2665'))
-        Jerboa.put(Map, Point(6, 14), Cell('\u2714'))
-        Jerboa.put(Map, Point(8, 14), Cell('\u2708'))
-        Jerboa.put(Map, Point(10, 14), Cell('\u270E'))
-        Jerboa.put(Map, Point(12, 14), Cell('\u2712'))
-        Jerboa.put(Map, Point(14, 14), Cell('\u273F'))
-        Jerboa.put(Map, Point(16, 14), Cell('\u2591'))
-        Jerboa.put(Map, Point(18, 14), Cell('\u2593'))
-        Jerboa.put(Map, Point(20, 14), Cell('\u2592'))
+        Jerboa.put(Map, Point(2, 14), Cell('\u2764'));
+        Jerboa.put(Map, Point(4, 14), Cell('\u2665'));
+        Jerboa.put(Map, Point(6, 14), Cell('\u2714'));
+        Jerboa.put(Map, Point(8, 14), Cell('\u2708'));
+        Jerboa.put(Map, Point(10, 14), Cell('\u270E'));
+        Jerboa.put(Map, Point(12, 14), Cell('\u2712'));
+        Jerboa.put(Map, Point(14, 14), Cell('\u273F'));
+        Jerboa.put(Map, Point(16, 14), Cell('\u2591'));
+        Jerboa.put(Map, Point(18, 14), Cell('\u2593'));
+        Jerboa.put(Map, Point(20, 14), Cell('\u2592'));
 
-        Jerboa.put(Map, Point(2, 16), Cell('\u2766'))
-        Jerboa.put(Map, Point(4, 16), Cell('\u279C'))
-        Jerboa.put(Map, Point(6, 16), Cell('\u27A4'))
-        Jerboa.put(Map, Point(8, 16), Cell('\u27BD'))
-        Jerboa.put(Map, Point(10, 16), Cell('\u266B'))
-        Jerboa.put(Map, Point(12, 16), Cell('\u274C'))
-        Jerboa.put(Map, Point(14, 16), Cell('\u273E'))
-        Jerboa.put(Map, Point(16, 16), Cell('\u272E'))
-        Jerboa.put(Map, Point(18, 16), Cell('\u2771'))
-        Jerboa.put(Map, Point(20, 16), Cell('\u2775'))
+        Jerboa.put(Map, Point(2, 16), Cell('\u2766'));
+        Jerboa.put(Map, Point(4, 16), Cell('\u279C'));
+        Jerboa.put(Map, Point(6, 16), Cell('\u27A4'));
+        Jerboa.put(Map, Point(8, 16), Cell('\u27BD'));
+        Jerboa.put(Map, Point(10, 16), Cell('\u266B'));
+        Jerboa.put(Map, Point(12, 16), Cell('\u274C'));
+        Jerboa.put(Map, Point(14, 16), Cell('\u273E'));
+        Jerboa.put(Map, Point(16, 16), Cell('\u272E'));
+        Jerboa.put(Map, Point(18, 16), Cell('\u2771'));
+        Jerboa.put(Map, Point(20, 16), Cell('\u2775'));
 
-        Jerboa.put(Map, Point(2, 18), Cell('\u275D'))
-        Jerboa.put(Map, Point(4, 18), Cell('\u2753'))
-        Jerboa.put(Map, Point(6, 18), Cell('\u2724'))
-        Jerboa.put(Map, Point(8, 18), Cell('\u2640'))
-        Jerboa.put(Map, Point(10, 18), Cell('\u263F'))
-        Jerboa.put(Map, Point(12, 18), Cell('\u260A'))
-        Jerboa.put(Map, Point(14, 18), Cell('\u2692'))
-        Jerboa.put(Map, Point(16, 18), Cell('\u2691'))
-        Jerboa.put(Map, Point(18, 18), Cell('\u2668'))
-        Jerboa.put(Map, Point(20, 18), Cell(Unicode(0x26D4))) // Note that you can also use the Unicode function to convert these
+        Jerboa.put(Map, Point(2, 18), Cell('\u275D'));
+        Jerboa.put(Map, Point(4, 18), Cell('\u2753'));
+        Jerboa.put(Map, Point(6, 18), Cell('\u2724'));
+        Jerboa.put(Map, Point(8, 18), Cell('\u2640'));
+        Jerboa.put(Map, Point(10, 18), Cell('\u263F'));
+        Jerboa.put(Map, Point(12, 18), Cell('\u260A'));
+        Jerboa.put(Map, Point(14, 18), Cell('\u2692'));
+        Jerboa.put(Map, Point(16, 18), Cell('\u2691'));
+        Jerboa.put(Map, Point(18, 18), Cell('\u2668'));
+        Jerboa.put(Map, Point(20, 18), Cell(Unicode(0x26D4))); // Note that you can also use the Unicode function to convert these
 
         // https://unicode-table.com/en/blocks/miscellaneous-symbols-and-pictographs/
         // https://unicode-table.com/en/blocks/supplemental-symbols-and-pictographs/
 
         // These characters would have to be typed with a pair of \u0000. Thank goodness for the Unicode function that converts them!
-        Jerboa.write(Map, Point(23, 2), 'Codepoints\nAbove\n0xFFFF')
+        Jerboa.write(Map, Point(23, 2), 'Codepoints\nAbove\n0xFFFF');
 
 
-        Jerboa.put(Map, Point(23, 6), Cell(Unicode(0X1F310), '#ff0000', '#ffff00')) // A colored symbols ignore the fill color
-        Jerboa.put(Map, Point(25, 6), Cell(Unicode(0x1F3E2)))
-        Jerboa.put(Map, Point(27, 6), Cell(Unicode(0x1F31E)))
-        Jerboa.put(Map, Point(29, 6), Cell(Unicode(0x1F342)))
-        Jerboa.put(Map, Point(31, 6), Cell(Unicode(0x1F350)))
-        Jerboa.put(Map, Point(33, 6), Cell(Unicode(0x1F358)))
-        Jerboa.put(Map, Point(35, 6), Cell(Unicode(0x1F300)))
-        Jerboa.put(Map, Point(37, 6), Cell(Unicode(0x1F301)))
+        Jerboa.put(Map, Point(23, 6), Cell(Unicode(0X1F310), '#ff0000', '#ffff00')); // A colored symbols ignore the fill color
+        Jerboa.put(Map, Point(25, 6), Cell(Unicode(0x1F3E2)));
+        Jerboa.put(Map, Point(27, 6), Cell(Unicode(0x1F31E)));
+        Jerboa.put(Map, Point(29, 6), Cell(Unicode(0x1F342)));
+        Jerboa.put(Map, Point(31, 6), Cell(Unicode(0x1F350)));
+        Jerboa.put(Map, Point(33, 6), Cell(Unicode(0x1F358)));
+        Jerboa.put(Map, Point(35, 6), Cell(Unicode(0x1F300)));
+        Jerboa.put(Map, Point(37, 6), Cell(Unicode(0x1F301)));
 
-        Jerboa.put(Map, Point(23, 8), Cell(Unicode(0x1F374)))
-        Jerboa.put(Map, Point(25, 8), Cell(Unicode(0x1F373)))
-        Jerboa.put(Map, Point(27, 8), Cell(Unicode(0x1F397)))
-        Jerboa.put(Map, Point(29, 8), Cell(Unicode(0x1F3CD)))
-        Jerboa.put(Map, Point(31, 8), Cell(Unicode(0x1F3E4)))
-        Jerboa.put(Map, Point(33, 8), Cell(Unicode(0x1F3EF)))
-        Jerboa.put(Map, Point(35, 8), Cell(Unicode(0x1F302)))
-        Jerboa.put(Map, Point(37, 8), Cell(Unicode(0x1F303)))
+        Jerboa.put(Map, Point(23, 8), Cell(Unicode(0x1F374)));
+        Jerboa.put(Map, Point(25, 8), Cell(Unicode(0x1F373)));
+        Jerboa.put(Map, Point(27, 8), Cell(Unicode(0x1F397)));
+        Jerboa.put(Map, Point(29, 8), Cell(Unicode(0x1F3CD)));
+        Jerboa.put(Map, Point(31, 8), Cell(Unicode(0x1F3E4)));
+        Jerboa.put(Map, Point(33, 8), Cell(Unicode(0x1F3EF)));
+        Jerboa.put(Map, Point(35, 8), Cell(Unicode(0x1F302)));
+        Jerboa.put(Map, Point(37, 8), Cell(Unicode(0x1F303)));
 
-        Jerboa.put(Map, Point(23, 10), Cell(Unicode(0x1F3F9)))
-        Jerboa.put(Map, Point(25, 10), Cell(Unicode(0x1F415)))
-        Jerboa.put(Map, Point(27, 10), Cell(Unicode(0x1F427)))
-        Jerboa.put(Map, Point(29, 10), Cell(Unicode(0x1F424)))
-        Jerboa.put(Map, Point(31, 10), Cell(Unicode(0x1F430)))
-        Jerboa.put(Map, Point(33, 10), Cell(Unicode(0x1F441)))
-        Jerboa.put(Map, Point(35, 10), Cell(Unicode(0x1F304)))
-        Jerboa.put(Map, Point(37, 10), Cell(Unicode(0x1F941)))
+        Jerboa.put(Map, Point(23, 10), Cell(Unicode(0x1F3F9)));
+        Jerboa.put(Map, Point(25, 10), Cell(Unicode(0x1F415)));
+        Jerboa.put(Map, Point(27, 10), Cell(Unicode(0x1F427)));
+        Jerboa.put(Map, Point(29, 10), Cell(Unicode(0x1F424)));
+        Jerboa.put(Map, Point(31, 10), Cell(Unicode(0x1F430)));
+        Jerboa.put(Map, Point(33, 10), Cell(Unicode(0x1F441)));
+        Jerboa.put(Map, Point(35, 10), Cell(Unicode(0x1F304)));
+        Jerboa.put(Map, Point(37, 10), Cell(Unicode(0x1F941)));
 
-        Jerboa.put(Map, Point(23, 12), Cell(Unicode(0x1F451)))
-        Jerboa.put(Map, Point(25, 12), Cell(Unicode(0x1F46A)))
-        Jerboa.put(Map, Point(27, 12), Cell(Unicode(0x1F47F)))
-        Jerboa.put(Map, Point(29, 12), Cell(Unicode(0x1F497)))
-        Jerboa.put(Map, Point(31, 12), Cell(Unicode(0x1F4A6)))
-        Jerboa.put(Map, Point(33, 12), Cell(Unicode(0x1F4A5)))
-        Jerboa.put(Map, Point(35, 12), Cell(Unicode(0x1F305)))
-        Jerboa.put(Map, Point(37, 12), Cell(Unicode(0x1F986)))
+        Jerboa.put(Map, Point(23, 12), Cell(Unicode(0x1F451)));
+        Jerboa.put(Map, Point(25, 12), Cell(Unicode(0x1F46A)));
+        Jerboa.put(Map, Point(27, 12), Cell(Unicode(0x1F47F)));
+        Jerboa.put(Map, Point(29, 12), Cell(Unicode(0x1F497)));
+        Jerboa.put(Map, Point(31, 12), Cell(Unicode(0x1F4A6)));
+        Jerboa.put(Map, Point(33, 12), Cell(Unicode(0x1F4A5)));
+        Jerboa.put(Map, Point(35, 12), Cell(Unicode(0x1F305)));
+        Jerboa.put(Map, Point(37, 12), Cell(Unicode(0x1F986)));
 
-        Jerboa.put(Map, Point(23, 14), Cell(Unicode(0x1F4A3)))
-        Jerboa.put(Map, Point(25, 14), Cell(Unicode(0x1F4BB)))
-        Jerboa.put(Map, Point(27, 14), Cell(Unicode(0x1F4F9)))
-        Jerboa.put(Map, Point(29, 14), Cell(Unicode(0x1F512)))
-        Jerboa.put(Map, Point(31, 14), Cell(Unicode(0x1F511)))
-        Jerboa.put(Map, Point(33, 14), Cell(Unicode(0x1F558)))
-        Jerboa.put(Map, Point(35, 14), Cell(Unicode(0x1F985)))
-        Jerboa.put(Map, Point(37, 14), Cell(Unicode(0x1F988)))
+        Jerboa.put(Map, Point(23, 14), Cell(Unicode(0x1F4A3)));
+        Jerboa.put(Map, Point(25, 14), Cell(Unicode(0x1F4BB)));
+        Jerboa.put(Map, Point(27, 14), Cell(Unicode(0x1F4F9)));
+        Jerboa.put(Map, Point(29, 14), Cell(Unicode(0x1F512)));
+        Jerboa.put(Map, Point(31, 14), Cell(Unicode(0x1F511)));
+        Jerboa.put(Map, Point(33, 14), Cell(Unicode(0x1F558)));
+        Jerboa.put(Map, Point(35, 14), Cell(Unicode(0x1F985)));
+        Jerboa.put(Map, Point(37, 14), Cell(Unicode(0x1F988)));
 
-        Jerboa.put(Map, Point(23, 16), Cell(Unicode(0x1F3E0)))
-        Jerboa.put(Map, Point(25, 16), Cell(Unicode(0x1F3E1)))
-        Jerboa.put(Map, Point(27, 16), Cell(Unicode(0x1F3E2)))
-        Jerboa.put(Map, Point(29, 16), Cell(Unicode(0x1F3E3)))
-        Jerboa.put(Map, Point(31, 16), Cell(Unicode(0x1F3E4)))
-        Jerboa.put(Map, Point(33, 16), Cell(Unicode(0x1F3E5)))
-        Jerboa.put(Map, Point(35, 16), Cell(Unicode(0x1F98A)))
-        Jerboa.put(Map, Point(37, 16), Cell(Unicode(0x1F324)))
+        Jerboa.put(Map, Point(23, 16), Cell(Unicode(0x1F3E0)));
+        Jerboa.put(Map, Point(25, 16), Cell(Unicode(0x1F3E1)));
+        Jerboa.put(Map, Point(27, 16), Cell(Unicode(0x1F3E2)));
+        Jerboa.put(Map, Point(29, 16), Cell(Unicode(0x1F3E3)));
+        Jerboa.put(Map, Point(31, 16), Cell(Unicode(0x1F3E4)));
+        Jerboa.put(Map, Point(33, 16), Cell(Unicode(0x1F3E5)));
+        Jerboa.put(Map, Point(35, 16), Cell(Unicode(0x1F98A)));
+        Jerboa.put(Map, Point(37, 16), Cell(Unicode(0x1F324)));
 
-        Jerboa.put(Map, Point(23, 18), Cell(Unicode(0x1F3F3)))
-        Jerboa.put(Map, Point(25, 18), Cell(Unicode(0x1F47C)))
-        Jerboa.put(Map, Point(27, 18), Cell(Unicode(0x1F47D)))
-        Jerboa.put(Map, Point(29, 18), Cell(Unicode(0x1F4C8)))
-        Jerboa.put(Map, Point(31, 18), Cell(Unicode(0x1F4F1)))
-        Jerboa.put(Map, Point(33, 18), Cell(Unicode(0x1F4E6)))
-        Jerboa.put(Map, Point(35, 18), Cell(Unicode(0x1F989)))
-        Jerboa.put(Map, Point(37, 18), Cell(Unicode(0x1F30D)))
+        Jerboa.put(Map, Point(23, 18), Cell(Unicode(0x1F3F3)));
+        Jerboa.put(Map, Point(25, 18), Cell(Unicode(0x1F47C)));
+        Jerboa.put(Map, Point(27, 18), Cell(Unicode(0x1F47D)));
+        Jerboa.put(Map, Point(29, 18), Cell(Unicode(0x1F4C8)));
+        Jerboa.put(Map, Point(31, 18), Cell(Unicode(0x1F4F1)));
+        Jerboa.put(Map, Point(33, 18), Cell(Unicode(0x1F4E6)));
+        Jerboa.put(Map, Point(35, 18), Cell(Unicode(0x1F989)));
+        Jerboa.put(Map, Point(37, 18), Cell(Unicode(0x1F30D)));
 
-        Jerboa.line(Map, Point(13, 1), Point(17, 1), Cell('L'))
-        Jerboa.line(Map, Point(13, 2), Point(13, 5), Cell('I'))
-        Jerboa.line(Map, Point(14, 2), Point(17, 5), Cell('N'))
-        Jerboa.line(Map, Point(17, 2), Point(13, 4), Cell('E'))
+        Jerboa.line(Map, Point(13, 1), Point(17, 1), Cell('L'));
+        Jerboa.line(Map, Point(13, 2), Point(13, 5), Cell('I'));
+        Jerboa.line(Map, Point(14, 2), Point(17, 5), Cell('N'));
+        Jerboa.line(Map, Point(17, 2), Point(13, 4), Cell('E'));
 
         // Status indicators with (CSS) colors
-        Jerboa.put(UI, Point(1, 1), Cell('\u2665', 'rgb(255, 128, 64)'))
-        Jerboa.write(UI, Point(3, 1), player.hp, 'rgb(255, 128, 64)')
-        Jerboa.put(UI, Point(1, 2), Cell('★', 'cyan'))
-        Jerboa.write(UI, Point(3, 2), player.mp, 'cyan')
-        Jerboa.put(UI, Point(1, 3), Cell('$', 'lightgreen'))
-        Jerboa.write(UI, Point(3, 3), player.go, 'lightgreen')
+        Jerboa.put(UI, Point(1, 1), Cell('\u2665', 'rgb(255, 128, 64)'));
+        Jerboa.write(UI, Point(3, 1), player.hp, 'rgb(255, 128, 64)');
+        Jerboa.put(UI, Point(1, 2), Cell('★', 'cyan'));
+        Jerboa.write(UI, Point(3, 2), player.mp, 'cyan');
+        Jerboa.put(UI, Point(1, 3), Cell('$', 'lightgreen'));
+        Jerboa.write(UI, Point(3, 3), player.go, 'lightgreen');
 
 
         // Calculate the Offset (in case the Map is bigger than the View)
         // var offset = Jerboa.offset(Map, View, player)
-        Jerboa.render(Map, View, player, Setting.showFrame)
-        Jerboa.render(UI, View)
+        Jerboa.render(Map, View, player, Setting.showFrame);
+        Jerboa.render(UI, View);
 
         // Update the required variables for calculating the FPS
-        ++Setting.count
+        ++Setting.count;
         if (Setting.start + Setting.interval < new Date().getTime()) {
-          Setting.fps = Setting.count
-          Setting.count = 0
-          Setting.start = new Date().getTime()
+          Setting.fps = Setting.count;
+          Setting.count = 0;
+          Setting.start = new Date().getTime();
         }
 
         // Show Debug information
         if (Setting.showDetails) {
-          context.save()
+          context.save();
 
-          var textSize = Math.floor(canvas.height / 20)
-          context.textAlign = 'center'
-          context.textBaseline = 'middle'
-          context.font = textSize.toString() + 'px bold sans'
-          context.lineWidth = Math.floor(View.cell().height / 5)
-          context.strokeStyle = 'black'
-          context.fillStyle = 'white'
-          renderText(canvas.width/2, textSize * 2, Setting.fps.toString() + ' FPS')
-          renderText(canvas.width/2, textSize * 3, canvas.width.toString() + 'x' + canvas.height.toString() + 'px in ' + window.innerWidth + 'x' + window.innerHeight + 'px')
-          renderText(canvas.width/2, textSize * 4, 'View: ' + View.cols() + 'x' + View.rows() + ' Map: ' + Map.cols() + 'x' + Map.rows())
-          var cell = View.cell()
-          renderText(canvas.width/2, textSize * 5, 'Cell size: ' + cell.width + 'x' + cell.height + 'px')
+          const textSize = Math.floor(canvas.height / 20);
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.font = `${textSize.toString()}px bold sans`;
+          context.lineWidth = Math.floor(View.cell().height / 5);
+          context.strokeStyle = 'black';
+          context.fillStyle = 'white';
+          renderText(canvas.width / 2, textSize * 2, `${Setting.fps.toString()} FPS`);
+          renderText(canvas.width / 2, textSize * 3, `${canvas.width.toString()}x${canvas.height.toString()}px in ${window.innerWidth}x${window.innerHeight}px`);
+          renderText(canvas.width / 2, textSize * 4, `View: ${View.cols()}x${View.rows()} Map: ${Map.cols()}x${Map.rows()}`);
+          const cell = View.cell();
+          renderText(canvas.width / 2, textSize * 5, `Cell size: ${cell.width}x${cell.height}px`);
 
-          context.restore()
+          context.restore();
         }
 
         // Ready for the next Render call
-        window.requestAnimationFrame(render)
-      }
+        window.requestAnimationFrame(render);
+      };
 
       // Set the Display and View up then start the Render loop
-      resize()
-      window.requestAnimationFrame(render)
+      resize();
+      window.requestAnimationFrame(render);
     </script>
   </body>
 </html>

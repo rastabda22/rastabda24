@@ -128,3 +128,40 @@ Added the Project on GitLab and copied and added the latest copy of both the pro
     Added the Default Cell and Border to Grids (copied when it's created from an existing View/Grid)
     Added support to the Stroke and StrokeWidth properties to Cells
     Backgrounds are now drawn before the Values to avoid clipping the wider ones when there's a background
+
+  ... bug fixing and some optimizing ...
+
+  Jerboa 10: 2018-07-19
+    Tested using a custom font. Works in anything with a font property.
+    All that is needed is adding the @font-face css and changing the font
+
+    Added the missing ';' to the scripts and other minute changes (based on the AirBnB coding style)
+    Some features may be ES6 only, hopefully it works great
+
+    Made sure that whitespaces (' ') aren't 'written' unless the option to include them is 'true'
+
+  Jerboa 11: 2018-07-21
+    Made sure that Jerboa only replaces the value or the fill if undefined (on Put)
+    This makes sure that the Background is consistant with was was there
+
+    Turned all let/const back to var, no point in requiring ES6 yet
+
+  Jerboa 12: 2018-07-22
+    Added a Jerboa.clear function which calls Jerboa.fill with an empty Cell and the force flag
+    This makes sure that all cells are cleared instead of setting them to ' '
+
+  Jerboa 13: 2018-07-22
+    Jerboa.fill now assumes it's the entire grid if no shape is identified or it's an empty Rect.
+    Jerboa.fill assumes a rect size of 1x1 if the shape is a Point (thus no w or h).
+    Minor changes
+
+  Jerboa 14: 2018-07-23
+    Jerboa.get can now take values from objects (like Point and Rect) to determine the col (x) and row (y)
+
+  Jerboa 15: 2018-07-30
+    Jerboa.write will now center if the position specified is null or the components of a Point are null. Multi-line text will be drawn on top of each-other.
+
+  Jerboa 16: 2018-08-02
+    Jerboa.write was calculating CenterX based on View.rows():
+        var centerY = Math.floor(View.rows() / 2);
+    Changed it to grid.rows(), as it does for centerX
